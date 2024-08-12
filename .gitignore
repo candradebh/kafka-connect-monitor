@@ -37,7 +37,7 @@ build/
 src/main/resources/credentials/
 
 ## banco de dados
-/data/kafka.mv.db
+data/
 data/kafka.mv.db
 
 ## frontend ##
