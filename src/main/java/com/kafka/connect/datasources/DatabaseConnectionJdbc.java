@@ -67,15 +67,15 @@ public class DatabaseConnectionJdbc
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(YEAR FROM datacriacaoservidor) AS year, " + //
-            " EXTRACT(MONTH FROM datacriacaoservidor) AS month," + //
-            " COUNT(*) AS total_records " + //
+            " EXTRACT(YEAR FROM datacriacaoservidor)::int AS year, " + //
+            " EXTRACT(MONTH FROM datacriacaoservidor)::int AS month, " + //
+            " COUNT(*)::int AS total_records " + //
             " FROM " + p_tabela + //
             " GROUP BY year, month " + //
             " ORDER BY year, month; ";
 
         List<DataAnaliseYearDTO> v_listaDadosYearMouth = new ArrayList<DataAnaliseYearDTO>();
-        DataAnaliseYearDTO v_dataAnalise = new DataAnaliseYearDTO();
+
         try
         {
 
@@ -86,10 +86,13 @@ public class DatabaseConnectionJdbc
             // Processar o resultado
             while (rs.next())
             {
+                DataAnaliseYearDTO v_dataAnalise = new DataAnaliseYearDTO();
+                v_dataAnalise.setNomeTabela(p_tabela);
                 v_dataAnalise.setClienteNome(p_nomeCliente);
                 v_dataAnalise.setYear(rs.getInt("year"));
                 v_dataAnalise.setMonth(rs.getInt("month"));
-                v_dataAnalise.setTotalRecordsPostgres(rs.getLong("total_records"));
+                v_dataAnalise.setTotalRecordsPostgres(rs.getInt("total_records"));
+
                 v_listaDadosYearMouth.add(v_dataAnalise);
             }
         }

@@ -132,42 +132,6 @@ public class DataMonitoringService
         }
     }
 
-    private void atualizarVolumetriaPorTabela(TableMetadataEntity v_tableEntity, List<DataAnaliseYearDTO> v_listaDataAnaliseYearDTO, String p_typeConnector)
-    {
-        for (DataAnaliseYearDTO v_DataAnaliseYearDTO : v_listaDataAnaliseYearDTO)
-        {
-            Optional<VolumetryYearEntity> v_volumetryYearEntityOptional = volumetryYearRepository.findByClienteNomeAnoMes(v_DataAnaliseYearDTO.getClienteNome(),
-                v_DataAnaliseYearDTO.getYear(), v_DataAnaliseYearDTO.getMonth());
-
-            VolumetryYearEntity v_volumetryEntity = null;
-            if (v_volumetryYearEntityOptional.isPresent())
-            {
-                v_volumetryEntity = v_volumetryYearEntityOptional.get();
-            }
-            else
-            {
-                v_volumetryEntity = new VolumetryYearEntity();
-                v_volumetryEntity.setClienteNome(v_DataAnaliseYearDTO.getClienteNome());
-                v_volumetryEntity.setNomeTabela(v_tableEntity.getTableName());
-                v_volumetryEntity.setAno(v_DataAnaliseYearDTO.getYear());
-                v_volumetryEntity.setMes(v_DataAnaliseYearDTO.getMonth());
-
-            }
-
-            if (p_typeConnector.equals("source"))
-            {
-
-                v_volumetryEntity.setTotalRecordsPostgres(v_DataAnaliseYearDTO.getTotalRecordsPostgres());
-            }
-            else
-            {
-                v_volumetryEntity.setTotalRecordsBigquery(v_DataAnaliseYearDTO.getTotalRecordsBigquery());
-            }
-
-            volumetryYearRepository.save(v_volumetryEntity);
-        }
-    }
-
     private void atualizarVolumetriaSinkConnectors()
     {
         String v_typeConectorSource = "sink";
@@ -215,8 +179,43 @@ public class DataMonitoringService
 
                     this.atualizarVolumetriaPorTabela(v_tabelaEntity, v_listaDataAnaliseYearDTO, v_typeConectorSource);
                 }
+            }
+        }
+    }
+
+    private void atualizarVolumetriaPorTabela(TableMetadataEntity v_tableEntity, List<DataAnaliseYearDTO> v_listaDataAnaliseYearDTO, String p_typeConnector)
+    {
+        for (DataAnaliseYearDTO v_DataAnaliseYearDTO : v_listaDataAnaliseYearDTO)
+        {
+            Optional<VolumetryYearEntity> v_volumetryYearEntityOptional = volumetryYearRepository.findByClienteNomeTabelaAnoMes(
+                v_DataAnaliseYearDTO.getClienteNome(), v_tableEntity.getTableName(), v_DataAnaliseYearDTO.getYear(), v_DataAnaliseYearDTO.getMonth());
+
+            VolumetryYearEntity v_volumetryEntity = null;
+            if (v_volumetryYearEntityOptional.isPresent())
+            {
+                v_volumetryEntity = v_volumetryYearEntityOptional.get();
+            }
+            else
+            {
+                v_volumetryEntity = new VolumetryYearEntity();
+                v_volumetryEntity.setClienteNome(v_DataAnaliseYearDTO.getClienteNome());
+                v_volumetryEntity.setNomeTabela(v_tableEntity.getTableName());
+                v_volumetryEntity.setAno(v_DataAnaliseYearDTO.getYear());
+                v_volumetryEntity.setMes(v_DataAnaliseYearDTO.getMonth());
 
             }
+
+            if (p_typeConnector.equals("source"))
+            {
+
+                v_volumetryEntity.setTotalRecordsPostgres(v_DataAnaliseYearDTO.getTotalRecordsPostgres());
+            }
+            else
+            {
+                v_volumetryEntity.setTotalRecordsBigquery(v_DataAnaliseYearDTO.getTotalRecordsBigquery());
+            }
+
+            volumetryYearRepository.save(v_volumetryEntity);
         }
     }
 

@@ -52,7 +52,7 @@ public class BigQueryService
 
         String v_query = "SELECT " + //
             " EXTRACT(YEAR FROM datacriacaoservidor) AS year, " + //
-            " EXTRACT(MONTH FROM datacriacaoservidor) AS month," + //
+            " EXTRACT(MONTH FROM datacriacaoservidor) AS month, " + //
             " COUNT(*) AS total_records " + //
             " FROM " + p_tabela + //
             " GROUP BY year, month " + //
@@ -81,8 +81,9 @@ public class BigQueryService
                     v_dataAnaliseYear.setClienteNome(p_nomeCliente);
                     v_dataAnaliseYear.setYear(Integer.parseInt(row.get("year").getStringValue()));
                     v_dataAnaliseYear.setMonth(Integer.parseInt(row.get("month").getStringValue()));
-                    v_dataAnaliseYear.setTotalRecordsBigquery(row.get("year").getLongValue());
+                    v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
 
+                    v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }
             }
         }

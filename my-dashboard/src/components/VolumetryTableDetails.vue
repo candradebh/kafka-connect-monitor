@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Volumetrias para {{ clientName }}</h1>
+    <h1>Cliente {{ clientName }} | Tabela: {{ tableName }}</h1>
 
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
@@ -10,27 +10,23 @@
     <table>
       <thead>
         <tr>
-          <th>Nome da Tabela</th>
-          <th>Data da Busca</th>
+          <th>Ano</th>
+          <th>Mes</th>
           <th>Postgres</th>
           <th>Bigquery</th>
-          <th>Query Source</th>
-          <th>Query Sink</th>
           <th>Status</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
-          <td>{{ volumetry.tabela }}</td>
-          <td>{{ volumetry.dataBusca | formatDate }}</td>
-          <td>{{ volumetry.postgres }}</td>
-          <td>{{ volumetry.bigquery }}</td>
-          <td>{{ volumetry.querySource }}</td>
-          <td>{{ volumetry.querySink }}</td>
-          <td>{{ volumetry.postgres == volumetry.bigquery ? "OK" : "ERROR" }}</td>
+          <td>{{ volumetry.ano }}</td>
+          <td>{{ volumetry.mes }}</td>
+          <td>{{ volumetry.totalRecordsPostgres }}</td>
+          <td>{{ volumetry.totalRecordsBigquery }}</td>
+          <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
           <td>
-            <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
+            <button @click="viewDetails(clientName,volumetry.tabela,volumetry.ano,volumetry.mes)">Detalhes</button>
           </td>
         </tr>
       </tbody>
@@ -43,8 +39,8 @@
 import axios from 'axios';
 
 export default {
-  name: 'VolumetryDetails',
-  props: ['clientName'],
+  name: 'VolumetryTableDetails',
+  props: ['clientName','tableName'],
   data() {
     return {
       volumetries: []
@@ -52,10 +48,10 @@ export default {
   },
   computed: {
     okCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres == volumetry.bigquery).length;
+      return 0;//this.volumetries.filter(volumetry => volumetry.postgres == volumetry.bigquery).length;
     },
     errorCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres != volumetry.bigquery).length;
+      return 0; //this.volumetries.filter(volumetry => volumetry.postgres != volumetry.bigquery).length;
     }
   },
   mounted() {
@@ -64,14 +60,14 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}`);
+        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}`);
         this.volumetries = response.data;
       } catch (error) {
         console.error('Error fetching volumetries:', error);
       }
     },
-    viewDetails(clientName,tableName) {
-      this.$router.push({ name: 'VolumetryTableDetails', params: { clientName,tableName } });
+    viewDetails(clientName,tableName,ano,mes) {
+      this.$router.push({ name: 'VolumetryTableDetailsMesDia', params: { clientName,tableName,ano,mes } });
     },
   }
 };
