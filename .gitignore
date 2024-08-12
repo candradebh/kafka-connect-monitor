@@ -33,5 +33,9 @@ build/
 .vscode/
 
 
-## credentials 
+## credentials ##
 !**/src/main/resources/credentials/
+
+## frontend ##
+/my-dashboard/node/
+/my-dashboard/node_modules/
