@@ -1,0 +1,6 @@
+Fri Jul 19 15:30:27 BRT 2024
+Em C:\projetos\connect
+br.com.logann.lfw.dev.exceptions.LfwDevException: Estrutura de projeto não suportada.
+Não encontrou o arquivo src\br\com\logann\connect\connect.gwt.xml (C:\projetos\connect\src\br\com\logann\connect\connect.gwt.xml)
+	at br.com.logann.lfw.dev.LfwGwtCompiler.findGwtModuleFile(LfwGwtCompiler.java:260)
+	at br.com.logann.lfw.dev.LfwGwtCompiler.main(LfwGwtCompiler.java:87)
