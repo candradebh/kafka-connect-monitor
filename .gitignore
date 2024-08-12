@@ -34,7 +34,7 @@ build/
 
 
 ## credentials ##
-!**/src/main/resources/credentials/*.json 
+/src/main/resources/credentials/*.json 
 
 ## frontend ##
 /my-dashboard/node/
