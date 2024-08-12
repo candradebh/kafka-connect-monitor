@@ -37,10 +37,11 @@ build/
 src/main/resources/credentials/
 
 ## banco de dados
-data/
+data/kafka.mv.db
 
 ## frontend ##
 /my-dashboard/node/
 /my-dashboard/node/node.exe
 /my-dashboard/node_modules/
+
 
