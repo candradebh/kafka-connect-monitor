@@ -25,10 +25,9 @@ public class TableMetadataService
     public void insertInitialData()
     {
         List<TableMetadataEntity> initialData = Arrays.asList( //
-            new TableMetadataEntity(null, "public.atendimento", "dataCriacaoServidor"), //
-            new TableMetadataEntity(null, "public.planoacao", "dataCriacao"), //
-            new TableMetadataEntity(null, "public.pontoatendimento", "dataCriacao")
-        );
+            new TableMetadataEntity(null, "public.atendimento", "dataCriacaoServidor", true), //
+            new TableMetadataEntity(null, "public.planoacao", "dataCriacao", false), //
+            new TableMetadataEntity(null, "public.pontoatendimento", "dataCriacao", false));
 
         for (TableMetadataEntity data : initialData)
         {

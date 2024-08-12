@@ -14,12 +14,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.google.cloud.bigquery.TableResult;
 import com.kafka.connect.datasources.DatabaseConnectionJdbc;
+import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
 import com.kafka.connect.entity.TableMetadataEntity;
+import com.kafka.connect.entity.VolumetryYearEntity;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorVolumetryRepository;
 import com.kafka.connect.repository.TableMetadataRepository;
+import com.kafka.connect.repository.VolumetryYearRepository;
 
 @Service
 public class DataMonitoringService
@@ -28,6 +31,9 @@ public class DataMonitoringService
 
     @Autowired
     private ConnectorConfigRepository connectorConfigRepository;
+
+    @Autowired
+    private VolumetryYearRepository volumetryYearRepository;
 
     @Autowired
     private ConnectorVolumetryRepository connectorVolumetryRepository;
@@ -60,8 +66,8 @@ public class DataMonitoringService
 
     private void atualizarVolumetriaSourceConnectors()
     {
-
-        List<ConnectorConfigEntity> listaConnectors = connectorConfigRepository.findByType("source");
+        String v_typeConectorSource = "source";
+        List<ConnectorConfigEntity> listaConnectors = connectorConfigRepository.findByType(v_typeConectorSource);
         for (ConnectorConfigEntity connector : listaConnectors)
         {
             List<String> v_tableList = Arrays.asList(connector.getTableIncludeList().split(","));
@@ -96,18 +102,28 @@ public class DataMonitoringService
                     v_volumetry.setTabela(v_table);
 
                     // montar a query
-                    String v_nomeColunaData = this.obterNomeColunaData(v_table);
+                    TableMetadataEntity v_tableEntity = this.obterDadosTabela(v_table);
                     String v_formattedDate = this.obterDataOntemParaBuscar();
                     String v_sql = "SELECT COUNT(*) as total FROM " + v_table;
-                    if (v_nomeColunaData != null && v_formattedDate != null)
+                    if (v_tableEntity != null && v_tableEntity.getDateColumnName() != null && v_formattedDate != null)
                     {
-                        v_sql += " WHERE " + v_nomeColunaData + " < '" + v_formattedDate + "'";
+                        v_sql += " WHERE " + v_tableEntity.getDateColumnName() + " < '" + v_formattedDate + "'";
                     }
 
                     v_volumetry.setQuerySource(v_sql);
                     v_volumetry.setPostgres(v_databaseConnectionJdbc.getTotalRows(v_volumetry.getQuerySource(), "total"));
 
                     connectorVolumetryRepository.save(v_volumetry);
+
+                    // tabelas que possuem analise de dados devem buscar tb
+                    if (v_tableEntity != null && v_tableEntity.isVolumetryData())
+                    {
+                        List<DataAnaliseYearDTO> v_listaDataAnaliseYearDTO = v_databaseConnectionJdbc.getDataAnaliseYear(v_tableEntity.getTableName(),
+                            connector.getNomeCliente());
+
+                        this.atualizarVolumetriaPorTabela(v_tableEntity, v_listaDataAnaliseYearDTO, v_typeConectorSource);
+                    }
+
                 }
 
             }
@@ -116,10 +132,46 @@ public class DataMonitoringService
         }
     }
 
+    private void atualizarVolumetriaPorTabela(TableMetadataEntity v_tableEntity, List<DataAnaliseYearDTO> v_listaDataAnaliseYearDTO, String p_typeConnector)
+    {
+        for (DataAnaliseYearDTO v_DataAnaliseYearDTO : v_listaDataAnaliseYearDTO)
+        {
+            Optional<VolumetryYearEntity> v_volumetryYearEntityOptional = volumetryYearRepository.findByClienteNomeAnoMes(v_DataAnaliseYearDTO.getClienteNome(),
+                v_DataAnaliseYearDTO.getYear(), v_DataAnaliseYearDTO.getMonth());
+
+            VolumetryYearEntity v_volumetryEntity = null;
+            if (v_volumetryYearEntityOptional.isPresent())
+            {
+                v_volumetryEntity = v_volumetryYearEntityOptional.get();
+            }
+            else
+            {
+                v_volumetryEntity = new VolumetryYearEntity();
+                v_volumetryEntity.setClienteNome(v_DataAnaliseYearDTO.getClienteNome());
+                v_volumetryEntity.setNomeTabela(v_tableEntity.getTableName());
+                v_volumetryEntity.setAno(v_DataAnaliseYearDTO.getYear());
+                v_volumetryEntity.setMes(v_DataAnaliseYearDTO.getMonth());
+
+            }
+
+            if (p_typeConnector.equals("source"))
+            {
+
+                v_volumetryEntity.setTotalRecordsPostgres(v_DataAnaliseYearDTO.getTotalRecordsPostgres());
+            }
+            else
+            {
+                v_volumetryEntity.setTotalRecordsBigquery(v_DataAnaliseYearDTO.getTotalRecordsBigquery());
+            }
+
+            volumetryYearRepository.save(v_volumetryEntity);
+        }
+    }
+
     private void atualizarVolumetriaSinkConnectors()
     {
-
-        List<ConnectorConfigEntity> listaConnectors = connectorConfigRepository.findByType("sink");
+        String v_typeConectorSource = "sink";
+        List<ConnectorConfigEntity> listaConnectors = connectorConfigRepository.findByType(v_typeConectorSource);
         for (ConnectorConfigEntity connector : listaConnectors)
         {
             List<ConnectorVolumetryEntity> v_volumetrias = connectorVolumetryRepository.findByNomeCliente(connector.getNomeCliente());
@@ -128,13 +180,13 @@ public class DataMonitoringService
             {
                 String v_nomeTabelaBigQuery = this.obterTabelaBigquery(connector, v_volumetry);
                 String v_query = "SELECT COUNT(*) FROM " + v_nomeTabelaBigQuery;
-                String v_nomeColunaData = this.obterNomeColunaData(v_volumetry.getTabela());
+                TableMetadataEntity v_tabelaEntity = this.obterDadosTabela(v_volumetry.getTabela());
                 String v_formattedDate = this.obterDataOntemParaBuscar();
 
-                if (v_nomeColunaData != null && v_formattedDate != null)
+                if (v_tabelaEntity != null && v_tabelaEntity.getDateColumnName() != null && v_formattedDate != null)
                 {
                     String formattedDate = this.obterDataOntemParaBuscar();
-                    v_query += " WHERE " + v_nomeColunaData + " < '" + formattedDate + "'";
+                    v_query += " WHERE " + v_tabelaEntity.getDateColumnName() + " < '" + formattedDate + "'";
                 }
 
                 try
@@ -154,6 +206,16 @@ public class DataMonitoringService
                 {
                     e.printStackTrace();
                 }
+
+                // tabelas que possuem analise de dados devem buscar tb
+                if (v_tabelaEntity != null && v_tabelaEntity.isVolumetryData())
+                {
+                    List<DataAnaliseYearDTO> v_listaDataAnaliseYearDTO = bigqueryService.getDataAnaliseYear(connector.getNomeCliente() + ".json",
+                        v_nomeTabelaBigQuery, connector.getNomeCliente());
+
+                    this.atualizarVolumetriaPorTabela(v_tabelaEntity, v_listaDataAnaliseYearDTO, v_typeConectorSource);
+                }
+
             }
         }
     }
@@ -174,15 +236,14 @@ public class DataMonitoringService
         return formattedDate;
     }
 
-    private String obterNomeColunaData(final String v_table)
+    private TableMetadataEntity obterDadosTabela(final String v_table)
     {
-        String v_nomeColunaData = null;
+        TableMetadataEntity v_tableMetaData = null;
         Optional<TableMetadataEntity> v_tableMetaDataOptional = tableMetadaRepository.findByTableName(v_table);
         if (v_tableMetaDataOptional.isPresent())
         {
-            TableMetadataEntity v_tableMetaData = v_tableMetaDataOptional.get();
-            v_nomeColunaData = v_tableMetaData.getDateColumnName();
+            v_tableMetaData = v_tableMetaDataOptional.get();
         }
-        return v_nomeColunaData;
+        return v_tableMetaData;
     }
 }

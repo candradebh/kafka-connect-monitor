@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 
 public class DatabaseConnectionJdbc
@@ -58,6 +61,44 @@ public class DatabaseConnectionJdbc
         }
 
         return total;
+    }
+
+    public List<DataAnaliseYearDTO> getDataAnaliseYear(String p_tabela, String p_nomeCliente)
+    {
+
+        String v_query = "SELECT " + //
+            " EXTRACT(YEAR FROM datacriacaoservidor) AS year, " + //
+            " EXTRACT(MONTH FROM datacriacaoservidor) AS month," + //
+            " COUNT(*) AS total_records " + //
+            " FROM " + p_tabela + //
+            " GROUP BY year, month " + //
+            " ORDER BY year, month; ";
+
+        List<DataAnaliseYearDTO> v_listaDadosYearMouth = new ArrayList<DataAnaliseYearDTO>();
+        DataAnaliseYearDTO v_dataAnalise = new DataAnaliseYearDTO();
+        try
+        {
+
+            stmt = conn.createStatement();
+
+            rs = stmt.executeQuery(v_query);
+
+            // Processar o resultado
+            while (rs.next())
+            {
+                v_dataAnalise.setClienteNome(p_nomeCliente);
+                v_dataAnalise.setYear(rs.getInt("year"));
+                v_dataAnalise.setMonth(rs.getInt("month"));
+                v_dataAnalise.setTotalRecordsPostgres(rs.getLong("total_records"));
+                v_listaDadosYearMouth.add(v_dataAnalise);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return v_listaDadosYearMouth;
     }
 
     public void close()

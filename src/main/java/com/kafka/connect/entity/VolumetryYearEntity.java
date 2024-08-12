@@ -1,33 +1,34 @@
 package com.kafka.connect.entity;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "table_metadata")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "volumetry_year")
 @Getter
 @Setter
-public class TableMetadataEntity
+public class VolumetryYearEntity
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tableName;
+    private String clienteNome;
 
-    private String dateColumnName;
+    private String nomeTabela;
 
-    @Column(nullable = false, columnDefinition = "boolean default false")
-    private boolean volumetryData;
+    private int ano;
+
+    private int mes;
+
+    private long totalRecordsPostgres;
+
+    private long totalRecordsBigquery;
+
 }
