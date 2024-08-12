@@ -11,7 +11,7 @@
 	<groupId>com.kafka</groupId>
 	<artifactId>connect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>connect</name>
+	<name>kafka-connect-monitor</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

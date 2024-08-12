@@ -34,9 +34,13 @@ build/
 
 
 ## credentials ##
-/src/main/resources/credentials
+src/main/resources/credentials/
+
+## banco de dados
+data/
 
 ## frontend ##
 /my-dashboard/node/
 /my-dashboard/node/node.exe
 /my-dashboard/node_modules/
+
