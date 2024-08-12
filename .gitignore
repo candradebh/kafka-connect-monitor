@@ -38,4 +38,5 @@ build/
 
 ## frontend ##
 /my-dashboard/node/
+/my-dashboard/node/node.exe
 /my-dashboard/node_modules/
