@@ -2,7 +2,7 @@
   <div>
     <h2>Cliente: {{ clientName }} </h2>
     <h2>Tabela: {{ tableName }} </h2>
-    <h2>MES: {{ mes }} | ANO: {{ ano }}</h2>
+    <h2>DIA: {{ dia }} | MES: {{ mes }} | ANO: {{ ano }}</h2>
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
       <p><b>ERROR:</b> {{ errorCount }}</p>
@@ -11,7 +11,7 @@
     <table>
       <thead>
         <tr>
-          <th>Dia</th>
+          <th>Hora</th>
           <th>Postgres</th>
           <th>Bigquery</th>
           <th>Status</th>
@@ -20,12 +20,12 @@
       </thead>
       <tbody>
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
-          <td>{{ volumetry.dia }}</td>
+          <td>{{ volumetry.hora }}</td>
           <td>{{ volumetry.totalRecordsPostgres }}</td>
           <td>{{ volumetry.totalRecordsBigquery }}</td>
           <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
           <td>
-            <button @click="viewDetails(clientName,tableName,volumetry.ano,volumetry.mes,volumetry.dia)">Detalhes</button>
+            <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
           </td>
         </tr>
       </tbody>
@@ -38,8 +38,8 @@
 import axios from 'axios';
 
 export default {
-  name: 'VolumetryTableDetailsMesDia',
-  props: ['clientName','tableName','ano','mes'],
+  name: 'VolumetryTableDetailsMesDiaHora',
+  props: ['clientName','tableName','ano','mes','dia'],
   data() {
     return {
       volumetries: []
@@ -59,15 +59,12 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}`);
+        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}/${this.dia}`);
         this.volumetries = response.data;
       } catch (error) {
         console.error('Erro ao obter os dados:', error);
       }
-    },
-    viewDetails(clientName,tableName,ano,mes,dia) {
-      this.$router.push({ name: 'VolumetryTableDetailsMesDiaHora', params: { clientName,tableName,ano,mes,dia } });
-    },
+    }
   }
 };
 </script>

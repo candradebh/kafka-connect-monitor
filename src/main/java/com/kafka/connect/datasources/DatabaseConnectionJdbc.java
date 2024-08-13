@@ -147,6 +147,51 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDay(String p_tabela, String p_nomeCliente, int year, int month, int day)
+    {
+
+        String v_query = "SELECT " + //
+            " EXTRACT(HOUR FROM datacriacaoservidor)::INT AS hour, " + //
+            " COUNT(*)::int AS total_records " + //
+            " FROM " + p_tabela + //
+            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
+            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
+            " GROUP BY hour " + //
+            " ORDER BY hour; ";
+
+        List<DataAnaliseYearDTO> v_listaDadosYearMouth = new ArrayList<DataAnaliseYearDTO>();
+
+        try
+        {
+
+            stmt = conn.createStatement();
+
+            rs = stmt.executeQuery(v_query);
+
+            // Processar o resultado
+            while (rs.next())
+            {
+                DataAnaliseYearDTO v_dataAnalise = new DataAnaliseYearDTO();
+                v_dataAnalise.setNomeTabela(p_tabela);
+                v_dataAnalise.setClienteNome(p_nomeCliente);
+                v_dataAnalise.setYear(year);
+                v_dataAnalise.setMonth(month);
+                v_dataAnalise.setDay(day);
+                v_dataAnalise.setHour(rs.getInt("hour"));
+                v_dataAnalise.setTotalRecordsPostgres(rs.getInt("total_records"));
+
+                v_listaDadosYearMouth.add(v_dataAnalise);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return v_listaDadosYearMouth;
+    }
+
     public void close()
     {
 
