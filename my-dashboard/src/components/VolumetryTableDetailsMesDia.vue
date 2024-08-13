@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h1>Cliente {{ clientName }} | Tabela: {{ tableName }} | ANO: {{ ano }} | MES: {{ mes }}</h1>
-
+    <h2>Cliente: {{ clientName }} </h2>
+    <h2>Tabela: {{ tableName }} </h2>
+    <h2>MES: {{ mes }} | ANO: {{ ano }}</h2>
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
       <p><b>ERROR:</b> {{ errorCount }}</p>
@@ -10,8 +11,7 @@
     <table>
       <thead>
         <tr>
-          <th>Ano</th>
-          <th>Mes</th>
+          <th>Dia</th>
           <th>Postgres</th>
           <th>Bigquery</th>
           <th>Status</th>
@@ -20,8 +20,7 @@
       </thead>
       <tbody>
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
-          <td>{{ volumetry.ano }}</td>
-          <td>{{ volumetry.mes }}</td>
+          <td>{{ volumetry.dia }}</td>
           <td>{{ volumetry.totalRecordsPostgres }}</td>
           <td>{{ volumetry.totalRecordsBigquery }}</td>
           <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
@@ -39,7 +38,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'VolumetryTableDetails',
+  name: 'VolumetryTableDetailsMesDia',
   props: ['clientName','tableName','ano','mes'],
   data() {
     return {
@@ -48,10 +47,10 @@ export default {
   },
   computed: {
     okCount() {
-      return 0;//this.volumetries.filter(volumetry => volumetry.postgres == volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery).length;
     },
     errorCount() {
-      return 0; //this.volumetries.filter(volumetry => volumetry.postgres != volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres != volumetry.totalRecordsBigquery).length;
     }
   },
   mounted() {
@@ -60,10 +59,10 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}`);
+        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}`);
         this.volumetries = response.data;
       } catch (error) {
-        console.error('Error fetching volumetries:', error);
+        console.error('Erro ao obter os dados:', error);
       }
     }
   }

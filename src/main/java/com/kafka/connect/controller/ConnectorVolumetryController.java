@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
+import com.kafka.connect.entity.VolumetryMonthDayEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
+import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 import com.kafka.connect.services.ConnectorVolumetryService;
 
@@ -22,6 +24,9 @@ public class ConnectorVolumetryController
 
     @Autowired
     private VolumetryYearRepository volumetryYearRepository;
+
+    @Autowired
+    private VolumetryMonthRepository volumetryMonthRepository;
 
     @GetMapping
     public ResponseEntity<List<ConnectorVolumetryEntity>> getAllVolumetries()
@@ -44,6 +49,16 @@ public class ConnectorVolumetryController
         @PathVariable("nomeTabela") String nomeTabela)
     {
         List<VolumetryYearEntity> volumetries = volumetryYearRepository.findByClienteNomeTabela(nomeCliente, nomeTabela);
+
+        return ResponseEntity.ok(volumetries);
+
+    }
+
+    @GetMapping("/{nomeCliente}/{nomeTabela}/{ano}/{mes}")
+    public ResponseEntity<List<VolumetryMonthDayEntity>> getConnectorDetailsTableAnoMes(@PathVariable("nomeCliente") String nomeCliente,
+        @PathVariable("nomeTabela") String nomeTabela, @PathVariable("ano") int ano, @PathVariable("mes") int mes)
+    {
+        List<VolumetryMonthDayEntity> volumetries = volumetryMonthRepository.findByClienteNomeTabelaAnoMesDia(nomeCliente, nomeTabela, ano, mes);
 
         return ResponseEntity.ok(volumetries);
 

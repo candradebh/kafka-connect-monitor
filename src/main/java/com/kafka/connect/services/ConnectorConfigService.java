@@ -131,8 +131,11 @@ public class ConnectorConfigService
                     {
                         statusEntity.setErrorReason("Conector não está em estado RUNNING");
                     }
+                    String v_statusTask = "";
                     for (ConnectorStatus.Task task : status.getTasks())
                     {
+                        v_statusTask += task.getState() + " ";
+
                         if (!"RUNNING".equalsIgnoreCase(task.getState()))
                         {
                             statusEntity.setErrorReason("Tarefa " + task.getId() + " do conector não está em estado RUNNING");
@@ -141,6 +144,10 @@ public class ConnectorConfigService
 
                     connectorStatusRepository.save(statusEntity);
 
+                    // SALVAR O ULTIMO STATUS CONECTOR
+                    connectorConfig.setUltimoStatusConector(status.getConnector().getState());
+                    connectorConfig.setUltimoStatusTask1(v_statusTask);
+                    connectorConfig.setDataUltimoStatus(new Date());
                     logger.info("Inicio - Atualizando as configurações dos conectores");
 
                     // o restante das configuracoes eh obtido na chamada de /config

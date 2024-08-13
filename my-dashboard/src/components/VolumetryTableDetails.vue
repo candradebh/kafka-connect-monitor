@@ -1,7 +1,8 @@
 <template>
   <div>
-    <h1>Cliente {{ clientName }} | Tabela: {{ tableName }}</h1>
-
+    <h2>Cliente: {{ clientName }} </h2>
+    <h2>Tabela: {{ tableName }} </h2>
+    
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
       <p><b>ERROR:</b> {{ errorCount }}</p>
@@ -26,7 +27,7 @@
           <td>{{ volumetry.totalRecordsBigquery }}</td>
           <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
           <td>
-            <button @click="viewDetails(clientName,volumetry.tabela,volumetry.ano,volumetry.mes)">Detalhes</button>
+            <button @click="viewDetails(clientName,tableName,volumetry.ano,volumetry.mes)">Detalhes</button>
           </td>
         </tr>
       </tbody>
@@ -48,10 +49,10 @@ export default {
   },
   computed: {
     okCount() {
-      return 0;//this.volumetries.filter(volumetry => volumetry.postgres == volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery).length;
     },
     errorCount() {
-      return 0; //this.volumetries.filter(volumetry => volumetry.postgres != volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres != volumetry.totalRecordsBigquery).length;
     }
   },
   mounted() {
@@ -63,7 +64,7 @@ export default {
         const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}`);
         this.volumetries = response.data;
       } catch (error) {
-        console.error('Error fetching volumetries:', error);
+        console.error('Erro ao obter os dados:', error);
       }
     },
     viewDetails(clientName,tableName,ano,mes) {

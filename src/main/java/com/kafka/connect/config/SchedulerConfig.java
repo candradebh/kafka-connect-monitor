@@ -28,7 +28,7 @@ public class SchedulerConfig
     }
 
     // @Scheduled(cron = "0 0 0 * * ?") // Run once a day at midnight
-    @Scheduled(fixedRate = 3600000) // 1 hour 3600000
+    @Scheduled(fixedRate = 28800000) // 1 hour = 3600000 | 8 hour = 28800000
     public void scheduleDataMonitoring()
     {
         dataMonitorService.dataMonitor();

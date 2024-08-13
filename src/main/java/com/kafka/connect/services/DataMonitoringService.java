@@ -18,10 +18,12 @@ import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
 import com.kafka.connect.entity.TableMetadataEntity;
+import com.kafka.connect.entity.VolumetryMonthDayEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorVolumetryRepository;
 import com.kafka.connect.repository.TableMetadataRepository;
+import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 
 @Service
@@ -34,6 +36,9 @@ public class DataMonitoringService
 
     @Autowired
     private VolumetryYearRepository volumetryYearRepository;
+
+    @Autowired
+    private VolumetryMonthRepository volumetryMonthRepository;
 
     @Autowired
     private ConnectorVolumetryRepository connectorVolumetryRepository;
@@ -122,6 +127,15 @@ public class DataMonitoringService
                             connector.getNomeCliente());
 
                         this.atualizarVolumetriaPorTabela(v_tableEntity, v_listaDataAnaliseYearDTO, v_typeConectorSource);
+
+                        // atualizar a volumetria mes agupado por dia
+                        for (DataAnaliseYearDTO v_itemYear : v_listaDataAnaliseYearDTO)
+                        {
+                            List<DataAnaliseYearDTO> v_dadosMesDia = v_databaseConnectionJdbc.getDataAnaliseYearMonth(v_itemYear.getNomeTabela(),
+                                v_itemYear.getClienteNome(), v_itemYear.getYear(), v_itemYear.getMonth());
+
+                            this.atualizarVolumetiaMesDia(v_typeConectorSource, v_dadosMesDia, v_tableEntity);
+                        }
                     }
 
                 }
@@ -178,6 +192,15 @@ public class DataMonitoringService
                         v_nomeTabelaBigQuery, connector.getNomeCliente());
 
                     this.atualizarVolumetriaPorTabela(v_tabelaEntity, v_listaDataAnaliseYearDTO, v_typeConectorSource);
+
+                    // atualizar a volumetria mes agupado por dia
+                    for (DataAnaliseYearDTO v_itemYear : v_listaDataAnaliseYearDTO)
+                    {
+                        List<DataAnaliseYearDTO> v_dadosMesDia = bigqueryService.getDataAnaliseYearMonth(connector.getNomeCliente() + ".json",
+                            v_nomeTabelaBigQuery, v_itemYear.getClienteNome(), v_itemYear.getYear(), v_itemYear.getMonth());
+
+                        this.atualizarVolumetiaMesDia(v_typeConectorSource, v_dadosMesDia, v_tabelaEntity);
+                    }
                 }
             }
         }
@@ -216,6 +239,45 @@ public class DataMonitoringService
             }
 
             volumetryYearRepository.save(v_volumetryEntity);
+
+        }
+    }
+
+    private void atualizarVolumetiaMesDia(String p_typeConnector, List<DataAnaliseYearDTO> v_listaDadosMesDia, TableMetadataEntity v_tabelaEntity)
+    {
+
+        for (DataAnaliseYearDTO v_itemMesDia : v_listaDadosMesDia)
+        {
+            Optional<VolumetryMonthDayEntity> v_volumetryMonthOptional = volumetryMonthRepository.findByClienteNomeTabelaAnoMesDia(
+                v_itemMesDia.getClienteNome(), v_tabelaEntity.getTableName(), v_itemMesDia.getYear(), v_itemMesDia.getMonth(), v_itemMesDia.getDay());
+
+            VolumetryMonthDayEntity v_volumetryMonthEntity = null;
+            if (v_volumetryMonthOptional.isPresent())
+            {
+                v_volumetryMonthEntity = v_volumetryMonthOptional.get();
+            }
+            else
+            {
+                v_volumetryMonthEntity = new VolumetryMonthDayEntity();
+                v_volumetryMonthEntity.setClienteNome(v_itemMesDia.getClienteNome());
+                v_volumetryMonthEntity.setNomeTabela(v_tabelaEntity.getTableName());
+                v_volumetryMonthEntity.setAno(v_itemMesDia.getYear());
+                v_volumetryMonthEntity.setMes(v_itemMesDia.getMonth());
+                v_volumetryMonthEntity.setDia(v_itemMesDia.getDay());
+            }
+
+            if (p_typeConnector.equals("source"))
+            {
+
+                v_volumetryMonthEntity.setTotalRecordsPostgres(v_itemMesDia.getTotalRecordsPostgres());
+            }
+            else
+            {
+                v_volumetryMonthEntity.setTotalRecordsBigquery(v_itemMesDia.getTotalRecordsBigquery());
+            }
+
+            volumetryMonthRepository.save(v_volumetryMonthEntity);
+
         }
     }
 

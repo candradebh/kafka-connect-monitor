@@ -104,6 +104,49 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String p_tabela, String p_nomeCliente, int year, int month)
+    {
+
+        String v_query = "SELECT " + //
+            " EXTRACT(DAY FROM datacriacaoservidor)::int AS day, " + //
+            " COUNT(*)::int AS total_records " + //
+            " FROM " + p_tabela + //
+            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
+            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " GROUP BY day " + //
+            " ORDER BY day; ";
+
+        List<DataAnaliseYearDTO> v_listaDadosYearMouth = new ArrayList<DataAnaliseYearDTO>();
+
+        try
+        {
+
+            stmt = conn.createStatement();
+
+            rs = stmt.executeQuery(v_query);
+
+            // Processar o resultado
+            while (rs.next())
+            {
+                DataAnaliseYearDTO v_dataAnalise = new DataAnaliseYearDTO();
+                v_dataAnalise.setNomeTabela(p_tabela);
+                v_dataAnalise.setClienteNome(p_nomeCliente);
+                v_dataAnalise.setYear(year);
+                v_dataAnalise.setMonth(month);
+                v_dataAnalise.setDay(rs.getInt("day"));
+                v_dataAnalise.setTotalRecordsPostgres(rs.getInt("total_records"));
+
+                v_listaDadosYearMouth.add(v_dataAnalise);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        return v_listaDadosYearMouth;
+    }
+
     public void close()
     {
 

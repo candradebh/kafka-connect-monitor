@@ -1,6 +1,7 @@
 package com.kafka.connect.entity;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
@@ -51,6 +52,12 @@ public class ConnectorConfigEntity
     private String projectBigquery;
 
     private long mergeIntervalMs;
+
+    private String ultimoStatusConector;
+
+    private String ultimoStatusTask1;
+
+    private Date dataUltimoStatus;
 
     @Column(columnDefinition = "text")
     private String tableIncludeList;

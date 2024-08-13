@@ -8,6 +8,9 @@
           <th>Name</th>
           <th>Client Name</th>
           <th>Type</th>
+          <th>Status Conector</th>
+          <th>Status Tasks</th>
+          <th>Data Ultimo Status</th>
           <th>Ações</th>
         </tr>
       </thead>
@@ -17,6 +20,9 @@
           <td>{{ connector.name }}</td>
           <td>{{ connector.nomeCliente }}</td>
           <td>{{ connector.type }}</td>
+          <td>{{ connector.ultimoStatusConector }}</td>
+          <td>{{ connector.ultimoStatusTask1 }}</td>
+          <td>{{ connector.dataUltimoStatus | formatDate }}</td>
           <td>
             <button @click="viewDetails(connector.id)">Detalhes</button>
             <button @click="viewVolumetry(connector.nomeCliente)">Volumetria</button>

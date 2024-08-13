@@ -94,4 +94,65 @@ public class BigQueryService
 
         return v_listaDataAnaliseYear;
     }
+
+    /**
+     * SELECT EXTRACT(DAY FROM datacriacaoservidor) AS day, COUNT(*) AS total_records FROM smartquestion.`_atendimento` WHERE EXTRACT(YEAR FROM
+     * datacriacaoservidor) = 2023 AND EXTRACT(MONTH FROM datacriacaoservidor) = 5 GROUP BY day ORDER BY day;
+     * 
+     * @param filename
+     * @param p_tabela
+     * @param clienteNome
+     * @param year
+     * @param month
+     * @return
+     */
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String filename, String p_tabela, String clienteNome, int year, int month)
+    {
+
+        String v_query = "SELECT " + //
+            " EXTRACT(DAY FROM datacriacaoservidor) AS day, " + //
+            " COUNT(*) AS total_records " + //
+            " FROM " + p_tabela + //
+            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
+            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " GROUP BY day " + //
+            " ORDER BY day; ";
+
+        List<DataAnaliseYearDTO> v_listaDataAnaliseYear = new ArrayList<DataAnaliseYearDTO>();
+
+        TableResult v_result = null;
+
+        BigQuery bigQuery = bigQueryClients.get(filename);
+        if (bigQuery == null)
+        {
+            throw new IllegalArgumentException("Seu aquivo de credencial não é valido");
+        }
+
+        try
+        {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(v_query).build();
+            v_result = bigQuery.query(queryConfig);
+
+            if (v_result != null)
+            {
+                for (FieldValueList row : v_result.iterateAll())
+                {
+                    DataAnaliseYearDTO v_dataAnaliseYear = new DataAnaliseYearDTO();
+                    v_dataAnaliseYear.setClienteNome(clienteNome);
+                    v_dataAnaliseYear.setYear(year);
+                    v_dataAnaliseYear.setMonth(month);
+                    v_dataAnaliseYear.setDay(Integer.parseInt(row.get("day").getStringValue()));
+                    v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
+
+                    v_listaDataAnaliseYear.add(v_dataAnaliseYear);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // TODO: handle exception
+        }
+
+        return v_listaDataAnaliseYear;
+    }
 }

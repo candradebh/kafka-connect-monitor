@@ -17,6 +17,10 @@ public class DataAnaliseYearDTO
 
     private int month;
 
+    private int day;
+
+    private int hour;
+
     private long totalRecordsPostgres;
 
     private long totalRecordsBigquery;
