@@ -1,6 +1,7 @@
 package com.kafka.connect.entity;
 
 import java.util.Date;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,10 +11,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "volumetry_year")
+@Table(name = "volumetry_rows")
 @Getter
 @Setter
-public class VolumetryYearEntity
+public class VolumetryRowsEntity
 {
 
     @Id
@@ -30,8 +31,16 @@ public class VolumetryYearEntity
 
     private int mes;
 
-    private long totalRecordsPostgres;
+    private int dia;
 
-    private long totalRecordsBigquery;
+    private int hora;
 
+    private int minuto;
+
+    private long oid;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean deletado;
+
+    private Date dataDeletado;
 }

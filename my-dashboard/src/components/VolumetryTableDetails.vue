@@ -11,6 +11,7 @@
     <table>
       <thead>
         <tr>
+          <th>Data</th>
           <th>Ano</th>
           <th>Mes</th>
           <th>Postgres</th>
@@ -21,6 +22,7 @@
       </thead>
       <tbody>
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
+          <td>{{ volumetry.dataBusca | formatDate }}</td>
           <td>{{ volumetry.ano }}</td>
           <td>{{ volumetry.mes }}</td>
           <td>{{ volumetry.totalRecordsPostgres }}</td>

@@ -1,5 +1,6 @@
 package com.kafka.connect.entity;
 
+import java.util.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,6 +19,8 @@ public class VolumetryMonthDayEntity
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Date dataBusca;
 
     private String clienteNome;
 

@@ -11,6 +11,7 @@
     <table>
       <thead>
         <tr>
+          <th>Data Busca</th>
           <th>Dia</th>
           <th>Postgres</th>
           <th>Bigquery</th>
@@ -20,6 +21,7 @@
       </thead>
       <tbody>
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
+          <td>{{ volumetry.dataBusca | formatDate }}</td>
           <td>{{ volumetry.dia }}</td>
           <td>{{ volumetry.totalRecordsPostgres }}</td>
           <td>{{ volumetry.totalRecordsBigquery }}</td>

@@ -12,4 +12,10 @@
 
 
 
+# Evolução
+- Com a busca de volumetria por tabela por ano, mes, dia, hora e minutos para identificar erros de volumetria e apagá-los no banco de destino até que se ajuste esse problema, conseguimos identificar uma analise importante que pode ser desenvolvida, como a analise do comportamento dos dados, podemos identificar em qual momento do dia acontecem picos de INSERT no banco para uma tabela. (A IDEIA EH BOA MAS PESQUISAR POR DIA > HORA > MINUTOS EXIGE MUITO TEMPO PARA A ATUALIZAÇAO, FOQUE NO OBJETIVO E TRATE SEU TDAH)
+
+
+
+## Links interessantes
 https://docs.confluent.io/platform/current/connect/monitoring.html

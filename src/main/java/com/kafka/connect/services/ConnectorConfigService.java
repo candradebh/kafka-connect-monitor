@@ -100,7 +100,7 @@ public class ConnectorConfigService
 
                 if (connectorConfig != null)
                 {
-                    logger.info("Inicio - Atualizando status dos conectores");
+                    // logger.info("Inicio - Atualizando status dos conectores");
                     // o tipo dele source ou sink é obtido na chamada api de status
                     ConnectorStatus status = kafkaConnectService.getConnectorStatus(connectorConfig.getName());
                     connectorConfig.setType(status.getType()); // Defina o tipo conforme necessário
@@ -148,7 +148,7 @@ public class ConnectorConfigService
                     connectorConfig.setUltimoStatusConector(status.getConnector().getState());
                     connectorConfig.setUltimoStatusTask1(v_statusTask);
                     connectorConfig.setDataUltimoStatus(new Date());
-                    logger.info("Inicio - Atualizando as configurações dos conectores");
+                    // logger.info("Inicio - Atualizando as configurações dos conectores");
 
                     // o restante das configuracoes eh obtido na chamada de /config
                     ConnectorConfig v_configServer = kafkaConnectService.getConnectorConfig(connectorConfig.getName());
@@ -166,11 +166,11 @@ public class ConnectorConfigService
 
                     connectorConfig = repository.save(connectorConfig);
 
-                    logger.info("Conector: " + connectorConfig.getName() + " - Atualizado com sucesso! ");
+                    // logger.info("Conector: " + connectorConfig.getName() + " - Atualizado com sucesso! ");
                 }
             }
 
-            logger.info("Deletando os conectores que não existem no kafka");
+            // logger.info("Deletando os conectores que não existem no kafka");
 
             // deleta os conectors que não existe no kafka
             this.checkAndDeleteByNames(connectors);

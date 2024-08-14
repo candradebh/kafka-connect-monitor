@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
+import com.kafka.connect.entity.VolumetryHourEntity;
 import com.kafka.connect.entity.VolumetryMonthDayEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
 import com.kafka.connect.repository.VolumetryDayRepository;
+import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 import com.kafka.connect.services.ConnectorVolumetryService;
@@ -32,6 +34,9 @@ public class ConnectorVolumetryController
 
     @Autowired
     private VolumetryDayRepository volumetryDayRepository;
+
+    @Autowired
+    VolumetryHourRepository volumetryHourRepository;
 
     @GetMapping
     public ResponseEntity<List<ConnectorVolumetryEntity>> getAllVolumetries()
@@ -74,6 +79,17 @@ public class ConnectorVolumetryController
         @PathVariable("nomeTabela") String nomeTabela, @PathVariable("ano") int ano, @PathVariable("mes") int mes, @PathVariable("dia") int dia)
     {
         List<VolumetryDayEntity> volumetries = volumetryDayRepository.findByClienteNomeTabelaAnoMesDiaHora(nomeCliente, nomeTabela, ano, mes, dia);
+
+        return ResponseEntity.ok(volumetries);
+
+    }
+
+    @GetMapping("/{nomeCliente}/{nomeTabela}/{ano}/{mes}/{dia}/{hora}")
+    public ResponseEntity<List<VolumetryHourEntity>> getConnectorDetailsTableAnoMesDia(@PathVariable("nomeCliente") String nomeCliente,
+        @PathVariable("nomeTabela") String nomeTabela, @PathVariable("ano") int ano, @PathVariable("mes") int mes, @PathVariable("dia") int dia,
+        @PathVariable("hora") int hora)
+    {
+        List<VolumetryHourEntity> volumetries = volumetryHourRepository.findByClienteNomeTabelaAnoMesDiaHora(nomeCliente, nomeTabela, ano, mes, dia, hora);
 
         return ResponseEntity.ok(volumetries);
 

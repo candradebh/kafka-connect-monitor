@@ -10,10 +10,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "volumetry_year")
+@Table(name = "volumetry_hour")
 @Getter
 @Setter
-public class VolumetryYearEntity
+public class VolumetryHourEntity
 {
 
     @Id
@@ -29,6 +29,12 @@ public class VolumetryYearEntity
     private int ano;
 
     private int mes;
+
+    private int dia;
+
+    private int hora;
+
+    private int minuto;
 
     private long totalRecordsPostgres;
 

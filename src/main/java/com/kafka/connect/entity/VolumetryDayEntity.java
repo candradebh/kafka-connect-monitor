@@ -1,5 +1,6 @@
 package com.kafka.connect.entity;
 
+import java.util.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "volumetry_hour")
+@Table(name = "volumetry_day")
 @Getter
 @Setter
 public class VolumetryDayEntity
@@ -18,6 +19,8 @@ public class VolumetryDayEntity
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Date dataBusca;
 
     private String clienteNome;
 

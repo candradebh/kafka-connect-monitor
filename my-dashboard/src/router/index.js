@@ -7,6 +7,7 @@ import VolumetryDetails from '../components/VolumetryDetails.vue';
 import VolumetryTableDetails from '../components/VolumetryTableDetails.vue';
 import VolumetryTableDetailsMesDia from '@/components/VolumetryTableDetailsMesDia.vue';
 import VolumetryTableDetailsMesDiaHora from '@/components/VolumetryTableDetailsMesDiaHora.vue';
+import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/VolumetryTableDetailsMesDiaHoraMinutes.vue';
 
 Vue.use(Router);
 
@@ -50,6 +51,12 @@ const routes = [
     path: '/volumetry/:clientName/:tableName/:ano/:mes/:dia',
     name: 'VolumetryTableDetailsMesDiaHora',
     component: VolumetryTableDetailsMesDiaHora,
+    props: true
+  },
+  {
+    path: '/volumetry/:clientName/:tableName/:ano/:mes/:dia/:hora',
+    name: 'VolumetryTableDetailsMesDiaHoraMinutos',
+    component: VolumetryTableDetailsMesDiaHoraMinutes,
     props: true
   }
 ];
