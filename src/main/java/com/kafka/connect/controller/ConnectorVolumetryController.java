@@ -11,10 +11,12 @@ import com.kafka.connect.entity.ConnectorVolumetryEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
 import com.kafka.connect.entity.VolumetryHourEntity;
 import com.kafka.connect.entity.VolumetryMonthDayEntity;
+import com.kafka.connect.entity.VolumetryRowsEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
 import com.kafka.connect.repository.VolumetryDayRepository;
 import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
+import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 import com.kafka.connect.services.ConnectorVolumetryService;
 
@@ -37,6 +39,9 @@ public class ConnectorVolumetryController
 
     @Autowired
     VolumetryHourRepository volumetryHourRepository;
+
+    @Autowired
+    VolumetryRowsRepository volumetryRowsRepository;
 
     @GetMapping
     public ResponseEntity<List<ConnectorVolumetryEntity>> getAllVolumetries()
@@ -90,6 +95,18 @@ public class ConnectorVolumetryController
         @PathVariable("hora") int hora)
     {
         List<VolumetryHourEntity> volumetries = volumetryHourRepository.findByClienteNomeTabelaAnoMesDiaHora(nomeCliente, nomeTabela, ano, mes, dia, hora);
+
+        return ResponseEntity.ok(volumetries);
+
+    }
+
+    @GetMapping("/{nomeCliente}/{nomeTabela}/{ano}/{mes}/{dia}/{hora}/{minuto}")
+    public ResponseEntity<List<VolumetryRowsEntity>> getConnectorDetailsTableAnoMesDiaHoraMinutos(@PathVariable("nomeCliente") String nomeCliente,
+        @PathVariable("nomeTabela") String nomeTabela, @PathVariable("ano") int ano, @PathVariable("mes") int mes, @PathVariable("dia") int dia,
+        @PathVariable("hora") int hora, @PathVariable("minuto") int minuto)
+    {
+        List<VolumetryRowsEntity> volumetries = volumetryRowsRepository.findByClienteNomeTabelaAnoMesDiaHora(nomeCliente, nomeTabela, ano, mes, dia, hora,
+            minuto);
 
         return ResponseEntity.ok(volumetries);
 

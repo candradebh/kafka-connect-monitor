@@ -24,6 +24,7 @@ import com.kafka.connect.entity.TableMetadataEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
 import com.kafka.connect.entity.VolumetryHourEntity;
 import com.kafka.connect.entity.VolumetryMonthDayEntity;
+import com.kafka.connect.entity.VolumetryRowsEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorVolumetryRepository;
@@ -31,6 +32,7 @@ import com.kafka.connect.repository.TableMetadataRepository;
 import com.kafka.connect.repository.VolumetryDayRepository;
 import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
+import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 import jakarta.persistence.EntityManager;
 
@@ -57,6 +59,9 @@ public class DataMonitoringService
 
     @Autowired
     private VolumetryHourRepository volumetryHourRepository;
+
+    @Autowired
+    private VolumetryRowsRepository volumetryRowsRepository;
 
     @Autowired
     private ConnectorVolumetryRepository connectorVolumetryRepository;
@@ -241,6 +246,37 @@ public class DataMonitoringService
                                         connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, volumetryDayEntity.getClienteNome(),
                                         volumetryDayEntity.getAno(), volumetryDayEntity.getMes(), volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
                                     this.atualizarVolumetiaMesDiaHoraMinutes(m_typeConectorSink, v_dadosMesDiaHoraMinutosBigquery, v_tableEntity);
+
+                                    // OBTER OS REGISTROS DE FATO
+                                    List<VolumetryHourEntity> v_listaVolumetriaHora = volumetryHourRepository.findByClienteNomeTabelaAnoMesDiaHora(
+                                        connector.getNomeCliente(), v_tableEntity.getTableName(), volumetryDayEntity.getAno(), volumetryDayEntity.getMes(),
+                                        volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
+
+                                    for (VolumetryHourEntity v_volumetryHourEntity : v_listaVolumetriaHora)
+                                    {
+                                        // procurar nos minutos os registros que estao errados
+                                        if (v_volumetryHourEntity.getTotalRecordsPostgres() != v_volumetryHourEntity.getTotalRecordsBigquery())
+                                        {
+
+                                            // SOURCE - DIA E HORA
+                                            List<DataAnaliseYearDTO> v_dadosMinutosPostgres = v_databaseConnectionJdbc.getDataAnaliseYearMonthDayHourMinutes(
+                                                v_volumetryHourEntity.getNomeTabela(), v_volumetryHourEntity.getClienteNome(), v_volumetryHourEntity.getAno(),
+                                                v_volumetryHourEntity.getMes(), v_volumetryHourEntity.getDia(), v_volumetryHourEntity.getHora(),
+                                                v_volumetryHourEntity.getMinuto());
+                                            this.atualizarVolumetiaDosRegistrosErrados(m_typeConectorSource, v_dadosMinutosPostgres, v_tableEntity, "postgres");
+
+                                            // SINK - DIA E HORA
+                                            List<DataAnaliseYearDTO> v_dadosMinutosBigquery = bigqueryService.getDataAnaliseYearMonthDayHourMinutes(
+                                                connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, v_volumetryHourEntity.getClienteNome(),
+                                                v_volumetryHourEntity.getAno(), v_volumetryHourEntity.getMes(), v_volumetryHourEntity.getDia(),
+                                                v_volumetryHourEntity.getHora(), v_volumetryHourEntity.getMinuto());
+                                            this.atualizarVolumetiaDosRegistrosErrados(m_typeConectorSink, v_dadosMinutosBigquery, v_tableEntity, "bigquery");
+
+                                        }
+                                    }
+
+                                    // volumetryRowsRepository
+
                                 }
 
                             }
@@ -489,6 +525,51 @@ public class DataMonitoringService
             v_volumetryDayEntity.setDataBusca(new Date());
 
             volumetryHourRepository.save(v_volumetryDayEntity);
+
+        }
+    }
+
+    private void atualizarVolumetiaDosRegistrosErrados(String p_typeConnector, List<DataAnaliseYearDTO> v_listaDadosDto, TableMetadataEntity v_tabelaEntity,
+        String p_origem)
+    {
+
+        for (DataAnaliseYearDTO v_itemDto : v_listaDadosDto)
+        {
+            Optional<VolumetryRowsEntity> v_volumetryDayOptional = volumetryRowsRepository.findByClienteNomeTabelaAnoMesDiaHora(v_itemDto.getClienteNome(),
+                v_tabelaEntity.getTableName(), v_itemDto.getYear(), v_itemDto.getMonth(), v_itemDto.getDay(), v_itemDto.getHour(), v_itemDto.getMinutes(),
+                v_itemDto.getOid());
+
+            VolumetryRowsEntity v_volumetryDayEntity = null;
+
+            if (v_volumetryDayOptional.isPresent())
+            {
+                v_volumetryDayEntity = v_volumetryDayOptional.get();
+            }
+            else
+            {
+                v_volumetryDayEntity = new VolumetryRowsEntity();
+                v_volumetryDayEntity.setClienteNome(v_itemDto.getClienteNome());
+                v_volumetryDayEntity.setNomeTabela(v_tabelaEntity.getTableName());
+                v_volumetryDayEntity.setAno(v_itemDto.getYear());
+                v_volumetryDayEntity.setMes(v_itemDto.getMonth());
+                v_volumetryDayEntity.setDia(v_itemDto.getDay());
+                v_volumetryDayEntity.setHora(v_itemDto.getHour());
+                v_volumetryDayEntity.setMinuto(v_itemDto.getMinutes());
+                v_volumetryDayEntity.setOid(v_itemDto.getOid());
+            }
+
+            v_volumetryDayEntity.setDataBusca(new Date());
+
+            if (p_origem.equals("postgres"))
+            {
+                v_volumetryDayEntity.setPostgres(true);
+            }
+            if (p_origem.equals("bigquery"))
+            {
+                v_volumetryDayEntity.setBigquery(true);
+            }
+
+            volumetryRowsRepository.save(v_volumetryDayEntity);
 
         }
     }

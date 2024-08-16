@@ -2,7 +2,7 @@
   <div>
     <h2>Cliente: {{ clientName }} </h2>
     <h2>Tabela: {{ tableName }} </h2>
-    <h2>HORA: {{hora}} | DIA: {{ dia }} | MES: {{ mes }} | ANO: {{ ano }}</h2>
+    <h2>MINUTO: {{minuto}} | HORA: {{hora}} | DIA: {{ dia }} | MES: {{ mes }} | ANO: {{ ano }}</h2>
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
       <p><b>ERROR:</b> {{ errorCount }}</p>
@@ -12,9 +12,10 @@
       <thead>
         <tr>  
           <th>Data Busca</th>
-          <th>Minutos</th>
-          <th>Postgres</th>
-          <th>Bigquery</th>
+          <th>minuto</th>
+          <th>oid</th>
+          <th>OidPostgres</th>
+          <th>OidBigquery</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -23,11 +24,12 @@
         <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
           <td>{{ volumetry.dataBusca | formatDate }}</td>
           <td>{{ volumetry.minuto }}</td>
-          <td>{{ volumetry.totalRecordsPostgres }}</td>
-          <td>{{ volumetry.totalRecordsBigquery }}</td>
-          <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
+          <td>{{ volumetry.oid }}</td>
+          <td>{{ volumetry.postgres }}</td>
+          <td>{{ volumetry.bigquery }}</td>
+          <td>{{ volumetry.postgres == volumetry.bigquery ? "OK" : "ERROR" }}</td>
           <td>
-            <button @click="viewDetails(clientName,tableName,volumetry.ano,volumetry.mes,volumetry.dia, volumetry.hora, volumetry.minuto)">Detalhes</button>
+            <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
           </td>
         </tr>
       </tbody>
@@ -40,8 +42,8 @@
 import axios from 'axios';
 
 export default {
-  name: 'VolumetryTableDetailsMesDiaHoraMinutos',
-  props: ['clientName','tableName','ano','mes','dia','hora'],
+  name: 'VolumetryTableDetailsMesDiaHoraMinutosRows',
+  props: ['clientName','tableName','ano','mes','dia','hora','minuto'],
   data() {
     return {
       volumetries: []
@@ -61,15 +63,12 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}/${this.dia}/${this.hora}`);
+        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}/${this.dia}/${this.hora}/${this.minuto}`);
         this.volumetries = response.data;
       } catch (error) {
         console.error('Erro ao obter os dados:', error);
       }
-    },
-    viewDetails(clientName,tableName,ano,mes,dia,hora, minuto) {
-      this.$router.push({ name: 'VolumetryTableDetailsMesDiaHoraMinutosRows', params: { clientName,tableName,ano,mes,dia,hora, minuto } });
-    },
+    }
   }
 };
 </script>

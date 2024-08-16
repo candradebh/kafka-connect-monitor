@@ -262,4 +262,58 @@ public class BigQueryService
         return v_listaDataAnaliseYear;
     }
 
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHourMinutes(String filename, String p_tabela, String clienteNome, int year, int month, int day,
+        int hour, int minute)
+    {
+
+        String v_query = "SELECT " + //
+            " oid " + //
+            " FROM " + p_tabela + //
+            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
+            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
+            " AND EXTRACT(HOUR FROM datacriacaoservidor) = " + hour + //
+            " AND EXTRACT(minute FROM datacriacaoservidor) = " + minute + //
+            " ; ";
+
+        List<DataAnaliseYearDTO> v_listaDataAnaliseYear = new ArrayList<DataAnaliseYearDTO>();
+
+        TableResult v_result = null;
+
+        BigQuery bigQuery = bigQueryClients.get(filename);
+        if (bigQuery == null)
+        {
+            throw new IllegalArgumentException("Seu aquivo de credencial não é valido");
+        }
+
+        try
+        {
+            QueryJobConfiguration queryConfig = QueryJobConfiguration.newBuilder(v_query).build();
+            v_result = bigQuery.query(queryConfig);
+
+            if (v_result != null)
+            {
+                for (FieldValueList row : v_result.iterateAll())
+                {
+                    DataAnaliseYearDTO v_dataAnaliseYear = new DataAnaliseYearDTO();
+                    v_dataAnaliseYear.setClienteNome(clienteNome);
+                    v_dataAnaliseYear.setYear(year);
+                    v_dataAnaliseYear.setMonth(month);
+                    v_dataAnaliseYear.setDay(day);
+                    v_dataAnaliseYear.setHour(hour);
+                    v_dataAnaliseYear.setMinutes(minute);
+                    v_dataAnaliseYear.setOid(Long.parseLong(row.get("oid").getStringValue()));
+
+                    v_listaDataAnaliseYear.add(v_dataAnaliseYear);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // TODO: handle exception
+        }
+
+        return v_listaDataAnaliseYear;
+    }
+
 }

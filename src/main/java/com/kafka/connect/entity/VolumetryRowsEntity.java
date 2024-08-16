@@ -40,6 +40,12 @@ public class VolumetryRowsEntity
     private long oid;
 
     @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean postgres;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean bigquery;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean deletado;
 
     private Date dataDeletado;

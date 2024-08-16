@@ -27,4 +27,6 @@ public class DataAnaliseYearDTO
 
     private long totalRecordsBigquery;
 
+    private long oid;
+
 }
