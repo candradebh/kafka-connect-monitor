@@ -75,12 +75,12 @@ export default {
       }
     },
     openPopup(volumetry) {
-      console.log('Popup is being opened for:', volumetry);
+      //console.log('PopUp Open:', volumetry);
       this.selectedVolumetry = volumetry;
       this.showPopup = true;
     },
     closePopup() {
-      console.log('Popup is being closed');
+      //console.log('Popup is being closed');
       this.showPopup = false;
       this.selectedVolumetry = null;
     },
