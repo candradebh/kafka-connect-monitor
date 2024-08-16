@@ -27,6 +27,8 @@ public class VolumetryRowsEntity
 
     private String nomeTabela;
 
+    private String nomeTabelaBigquery;
+
     private int ano;
 
     private int mes;

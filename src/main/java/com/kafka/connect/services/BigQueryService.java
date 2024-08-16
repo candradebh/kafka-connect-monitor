@@ -41,18 +41,18 @@ public class BigQueryService
         }
         catch (Exception e)
         {
-            // TODO: handle exception
+            e.printStackTrace();
         }
 
         return v_result;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYear(String filename, String p_tabela, String p_nomeCliente)
+    public List<DataAnaliseYearDTO> getDataAnaliseYear(String filename, String p_tabela, String p_nomeCliente, String p_nomeColunaData)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(YEAR FROM datacriacaoservidor) AS year, " + //
-            " EXTRACT(MONTH FROM datacriacaoservidor) AS month, " + //
+            " EXTRACT(YEAR FROM " + p_nomeColunaData + ") AS year, " + //
+            " EXTRACT(MONTH FROM " + p_nomeColunaData + ") AS month, " + //
             " COUNT(*) AS total_records " + //
             " FROM " + p_tabela + //
             " GROUP BY year, month " + //
@@ -82,6 +82,7 @@ public class BigQueryService
                     v_dataAnaliseYear.setYear(Integer.parseInt(row.get("year").getStringValue()));
                     v_dataAnaliseYear.setMonth(Integer.parseInt(row.get("month").getStringValue()));
                     v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
+                    v_dataAnaliseYear.setNomeTabelaBigquery(p_tabela);
 
                     v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }
@@ -106,15 +107,15 @@ public class BigQueryService
      * @param month
      * @return
      */
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String filename, String p_tabela, String clienteNome, int year, int month)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String filename, String p_tabela, String p_nomeColunaData, String clienteNome, int year, int month)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(DAY FROM datacriacaoservidor) AS day, " + //
+            " EXTRACT(DAY FROM " + p_nomeColunaData + ") AS day, " + //
             " COUNT(*) AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + " ) = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + " ) = " + month + //
             " GROUP BY day " + //
             " ORDER BY day; ";
 
@@ -143,6 +144,7 @@ public class BigQueryService
                     v_dataAnaliseYear.setMonth(month);
                     v_dataAnaliseYear.setDay(Integer.parseInt(row.get("day").getStringValue()));
                     v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
+                    v_dataAnaliseYear.setNomeTabelaBigquery(p_tabela);
 
                     v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }
@@ -156,16 +158,17 @@ public class BigQueryService
         return v_listaDataAnaliseYear;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDay(String filename, String p_tabela, String clienteNome, int year, int month, int day)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDay(String filename, String p_tabela, String p_nomeColunaData, String clienteNome, int year,
+        int month, int day)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(HOUR FROM datacriacaoservidor) AS hour, " + //
+            " EXTRACT(HOUR FROM  " + p_nomeColunaData + " ) AS hour, " + //
             " COUNT(*) AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + ") = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + ") = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + " ) = " + day + //
             " GROUP BY hour " + //
             " ORDER BY hour; ";
 
@@ -195,6 +198,7 @@ public class BigQueryService
                     v_dataAnaliseYear.setDay(day);
                     v_dataAnaliseYear.setHour(Integer.parseInt(row.get("hour").getStringValue()));
                     v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
+                    v_dataAnaliseYear.setNomeTabelaBigquery(p_tabela);
 
                     v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }
@@ -208,17 +212,18 @@ public class BigQueryService
         return v_listaDataAnaliseYear;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHour(String filename, String p_tabela, String clienteNome, int year, int month, int day, int hour)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHour(String filename, String p_tabela, String p_nomeColunaData, String clienteNome, int year,
+        int month, int day, int hour)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(MINUTE FROM datacriacaoservidor) AS minutes, " + //
+            " EXTRACT(MINUTE FROM " + p_nomeColunaData + ") AS minutes, " + //
             " COUNT(*) AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
-            " AND EXTRACT(HOUR FROM datacriacaoservidor) = " + hour + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + ") = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + ") = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + " ) = " + day + //
+            " AND EXTRACT(HOUR FROM " + p_nomeColunaData + ") = " + hour + //
             " GROUP BY minutes " + //
             " ORDER BY minutes; ";
 
@@ -249,6 +254,7 @@ public class BigQueryService
                     v_dataAnaliseYear.setHour(hour);
                     v_dataAnaliseYear.setMinutes(Integer.parseInt(row.get("minutes").getStringValue()));
                     v_dataAnaliseYear.setTotalRecordsBigquery(row.get("total_records").getLongValue());
+                    v_dataAnaliseYear.setNomeTabelaBigquery(p_tabela);
 
                     v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }
@@ -262,18 +268,18 @@ public class BigQueryService
         return v_listaDataAnaliseYear;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHourMinutes(String filename, String p_tabela, String clienteNome, int year, int month, int day,
-        int hour, int minute)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHourMinutes(String filename, String p_tabela, String p_nomeColunaData, String clienteNome,
+        int year, int month, int day, int hour, int minute)
     {
 
         String v_query = "SELECT " + //
             " oid " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
-            " AND EXTRACT(HOUR FROM datacriacaoservidor) = " + hour + //
-            " AND EXTRACT(minute FROM datacriacaoservidor) = " + minute + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + " ) = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + " ) = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + " ) = " + day + //
+            " AND EXTRACT(HOUR FROM " + p_nomeColunaData + " ) = " + hour + //
+            " AND EXTRACT(minute FROM " + p_nomeColunaData + " ) = " + minute + //
             " ; ";
 
         List<DataAnaliseYearDTO> v_listaDataAnaliseYear = new ArrayList<DataAnaliseYearDTO>();
@@ -303,6 +309,7 @@ public class BigQueryService
                     v_dataAnaliseYear.setHour(hour);
                     v_dataAnaliseYear.setMinutes(minute);
                     v_dataAnaliseYear.setOid(Long.parseLong(row.get("oid").getStringValue()));
+                    v_dataAnaliseYear.setNomeTabelaBigquery(p_tabela);
 
                     v_listaDataAnaliseYear.add(v_dataAnaliseYear);
                 }

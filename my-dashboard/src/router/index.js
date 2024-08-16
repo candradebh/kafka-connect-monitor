@@ -61,7 +61,7 @@ const routes = [
     props: true
   },
   {
-    path: '/volumetry/:clientName/:tableName/:ano/:mes/:dia/:hora',
+    path: '/volumetry/:clientName/:tableName/:ano/:mes/:dia/:hora/:minuto',
     name: 'VolumetryTableDetailsMesDiaHoraMinutosRows',
     component: VolumetryTableDetailsMesDiaHoraMinutesRows,
     props: true

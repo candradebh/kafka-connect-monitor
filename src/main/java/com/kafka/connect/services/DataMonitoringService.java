@@ -166,6 +166,7 @@ public class DataMonitoringService
     private void atualizacaoVolumetriaAno(DatabaseConnectionJdbc v_databaseConnectionJdbc, ConnectorConfigEntity connector, TableMetadataEntity v_tableEntity,
         ConnectorVolumetryEntity v_volumetry, String v_nomeTabelaBigQuery)
     {
+
         // segundo nivel da volumetria que é agrupado por ano e mes, essa busca somente é feita quando a volumetria do prrimeiro nivel nao
         // atende e quando a tabela possui essa analise
         if (v_volumetry.getPostgres() != v_volumetry.getBigquery() && v_tableEntity != null && v_tableEntity.isVolumetryData())
@@ -173,12 +174,12 @@ public class DataMonitoringService
 
             // SOURCE - ANO E MES
             List<DataAnaliseYearDTO> v_listaDataAnaliseYearPostgresDTO = v_databaseConnectionJdbc.getDataAnaliseYear(v_tableEntity.getTableName(),
-                connector.getNomeCliente());
+                connector.getNomeCliente(), v_tableEntity.getDateColumnName());
             this.atualizarVolumetriaPorTabela(v_tableEntity, v_listaDataAnaliseYearPostgresDTO, m_typeConectorSource);
 
             // SINK - ANO E MES
             List<DataAnaliseYearDTO> v_listaDataAnaliseYearBigQueryDTO = bigqueryService.getDataAnaliseYear(connector.getNomeCliente() + ".json",
-                v_nomeTabelaBigQuery, connector.getNomeCliente());
+                v_nomeTabelaBigQuery, connector.getNomeCliente(), v_tableEntity.getDateColumnName());
             this.atualizarVolumetriaPorTabela(v_tableEntity, v_listaDataAnaliseYearBigQueryDTO, m_typeConectorSink);
 
             logger.info("Atualizado a volumetria[Nivel 2]: Cliente(" + connector.getNomeCliente() + "), connector(" + connector.getName() + "), tabela("
@@ -196,12 +197,13 @@ public class DataMonitoringService
 
                     // SOURCE - MES E DIA
                     List<DataAnaliseYearDTO> v_dadosMesDiaPostgres = v_databaseConnectionJdbc.getDataAnaliseYearMonth(volumetryYearEntity.getNomeTabela(),
-                        volumetryYearEntity.getClienteNome(), volumetryYearEntity.getAno(), volumetryYearEntity.getMes());
+                        volumetryYearEntity.getClienteNome(), v_tableEntity.getDateColumnName(), volumetryYearEntity.getAno(), volumetryYearEntity.getMes());
                     this.atualizarVolumetiaMesDia(m_typeConectorSource, v_dadosMesDiaPostgres, v_tableEntity);
 
                     // SINK - MES E DIA
                     List<DataAnaliseYearDTO> v_dadosMesDiaBigQuery = bigqueryService.getDataAnaliseYearMonth(connector.getNomeCliente() + ".json",
-                        v_nomeTabelaBigQuery, volumetryYearEntity.getClienteNome(), volumetryYearEntity.getAno(), volumetryYearEntity.getMes());
+                        v_nomeTabelaBigQuery, v_tableEntity.getDateColumnName(), volumetryYearEntity.getClienteNome(), volumetryYearEntity.getAno(),
+                        volumetryYearEntity.getMes());
                     this.atualizarVolumetiaMesDia(m_typeConectorSink, v_dadosMesDiaBigQuery, v_tableEntity);
 
                     // ATUALIZANDO MES - DIA E HORA
@@ -215,14 +217,14 @@ public class DataMonitoringService
 
                             // SOURCE - DIA E HORA
                             List<DataAnaliseYearDTO> v_dadosMesDiaHoraPostgres = v_databaseConnectionJdbc.getDataAnaliseYearMonthDay(
-                                volumetryMonthDayEntity.getNomeTabela(), volumetryMonthDayEntity.getClienteNome(), volumetryMonthDayEntity.getAno(),
-                                volumetryMonthDayEntity.getMes(), volumetryMonthDayEntity.getDia());
+                                volumetryMonthDayEntity.getNomeTabela(), volumetryMonthDayEntity.getClienteNome(), v_tableEntity.getDateColumnName(),
+                                volumetryMonthDayEntity.getAno(), volumetryMonthDayEntity.getMes(), volumetryMonthDayEntity.getDia());
                             this.atualizarVolumetiaMesDiaHora(m_typeConectorSource, v_dadosMesDiaHoraPostgres, v_tableEntity);
 
                             // SINK - DIA E HORA
                             List<DataAnaliseYearDTO> v_dadosMesDiaHora = bigqueryService.getDataAnaliseYearMonthDay(connector.getNomeCliente() + ".json",
-                                v_nomeTabelaBigQuery, volumetryMonthDayEntity.getClienteNome(), volumetryMonthDayEntity.getAno(),
-                                volumetryMonthDayEntity.getMes(), volumetryMonthDayEntity.getDia());
+                                v_nomeTabelaBigQuery, v_tableEntity.getDateColumnName(), volumetryMonthDayEntity.getClienteNome(),
+                                volumetryMonthDayEntity.getAno(), volumetryMonthDayEntity.getMes(), volumetryMonthDayEntity.getDia());
                             this.atualizarVolumetiaMesDiaHora(m_typeConectorSink, v_dadosMesDiaHora, v_tableEntity);
 
                             // ATUALIZANDO DIA - HORA e MINUTOS
@@ -237,14 +239,15 @@ public class DataMonitoringService
                                 {
                                     // SOURCE - DIA E HORA
                                     List<DataAnaliseYearDTO> v_dadosMesDiaHoraMinutosPostgres = v_databaseConnectionJdbc.getDataAnaliseYearMonthDayHour(
-                                        volumetryDayEntity.getNomeTabela(), volumetryDayEntity.getClienteNome(), volumetryDayEntity.getAno(),
-                                        volumetryDayEntity.getMes(), volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
+                                        volumetryDayEntity.getNomeTabela(), volumetryDayEntity.getClienteNome(), v_tableEntity.getDateColumnName(),
+                                        volumetryDayEntity.getAno(), volumetryDayEntity.getMes(), volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
                                     this.atualizarVolumetiaMesDiaHoraMinutes(m_typeConectorSource, v_dadosMesDiaHoraMinutosPostgres, v_tableEntity);
 
                                     // SINK - DIA E HORA
                                     List<DataAnaliseYearDTO> v_dadosMesDiaHoraMinutosBigquery = bigqueryService.getDataAnaliseYearMonthDayHour(
-                                        connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, volumetryDayEntity.getClienteNome(),
-                                        volumetryDayEntity.getAno(), volumetryDayEntity.getMes(), volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
+                                        connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, v_tableEntity.getDateColumnName(),
+                                        volumetryDayEntity.getClienteNome(), volumetryDayEntity.getAno(), volumetryDayEntity.getMes(),
+                                        volumetryDayEntity.getDia(), volumetryDayEntity.getHora());
                                     this.atualizarVolumetiaMesDiaHoraMinutes(m_typeConectorSink, v_dadosMesDiaHoraMinutosBigquery, v_tableEntity);
 
                                     // OBTER OS REGISTROS DE FATO
@@ -260,16 +263,16 @@ public class DataMonitoringService
 
                                             // SOURCE - DIA E HORA
                                             List<DataAnaliseYearDTO> v_dadosMinutosPostgres = v_databaseConnectionJdbc.getDataAnaliseYearMonthDayHourMinutes(
-                                                v_volumetryHourEntity.getNomeTabela(), v_volumetryHourEntity.getClienteNome(), v_volumetryHourEntity.getAno(),
-                                                v_volumetryHourEntity.getMes(), v_volumetryHourEntity.getDia(), v_volumetryHourEntity.getHora(),
-                                                v_volumetryHourEntity.getMinuto());
+                                                v_volumetryHourEntity.getNomeTabela(), v_volumetryHourEntity.getClienteNome(),
+                                                v_tableEntity.getDateColumnName(), v_volumetryHourEntity.getAno(), v_volumetryHourEntity.getMes(),
+                                                v_volumetryHourEntity.getDia(), v_volumetryHourEntity.getHora(), v_volumetryHourEntity.getMinuto());
                                             this.atualizarVolumetiaDosRegistrosErrados(m_typeConectorSource, v_dadosMinutosPostgres, v_tableEntity, "postgres");
 
                                             // SINK - DIA E HORA
                                             List<DataAnaliseYearDTO> v_dadosMinutosBigquery = bigqueryService.getDataAnaliseYearMonthDayHourMinutes(
-                                                connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, v_volumetryHourEntity.getClienteNome(),
-                                                v_volumetryHourEntity.getAno(), v_volumetryHourEntity.getMes(), v_volumetryHourEntity.getDia(),
-                                                v_volumetryHourEntity.getHora(), v_volumetryHourEntity.getMinuto());
+                                                connector.getNomeCliente() + ".json", v_nomeTabelaBigQuery, v_tableEntity.getDateColumnName(),
+                                                v_volumetryHourEntity.getClienteNome(), v_volumetryHourEntity.getAno(), v_volumetryHourEntity.getMes(),
+                                                v_volumetryHourEntity.getDia(), v_volumetryHourEntity.getHora(), v_volumetryHourEntity.getMinuto());
                                             this.atualizarVolumetiaDosRegistrosErrados(m_typeConectorSink, v_dadosMinutosBigquery, v_tableEntity, "bigquery");
 
                                         }
@@ -468,6 +471,7 @@ public class DataMonitoringService
             else
             {
                 v_volumetryDayEntity.setTotalRecordsBigquery(v_itemMesDiaHora.getTotalRecordsBigquery());
+
             }
 
             v_volumetryDayEntity.setDataBusca(new Date());
@@ -556,6 +560,7 @@ public class DataMonitoringService
                 v_volumetryDayEntity.setHora(v_itemDto.getHour());
                 v_volumetryDayEntity.setMinuto(v_itemDto.getMinutes());
                 v_volumetryDayEntity.setOid(v_itemDto.getOid());
+
             }
 
             v_volumetryDayEntity.setDataBusca(new Date());
@@ -567,6 +572,7 @@ public class DataMonitoringService
             if (p_origem.equals("bigquery"))
             {
                 v_volumetryDayEntity.setBigquery(true);
+                v_volumetryDayEntity.setNomeTabelaBigquery(v_itemDto.getNomeTabelaBigquery());
             }
 
             volumetryRowsRepository.save(v_volumetryDayEntity);

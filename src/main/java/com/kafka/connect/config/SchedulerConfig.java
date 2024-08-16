@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import com.kafka.connect.services.DataMonitoringService;
 import com.kafka.connect.services.KafkaConnectorStatusService;
+import com.kafka.connect.services.VolumetryDeleteRowsBigqueryService;
 
 @Configuration
 @EnableScheduling
@@ -15,16 +16,21 @@ public class SchedulerConfig
 
     private final DataMonitoringService dataMonitorService;
 
-    public SchedulerConfig(KafkaConnectorStatusService monitorService, DataMonitoringService dataMonitorService)
+    private final VolumetryDeleteRowsBigqueryService volumetryDeleteRowsBigqueryService;
+
+    public SchedulerConfig(KafkaConnectorStatusService monitorService, DataMonitoringService dataMonitorService,
+        VolumetryDeleteRowsBigqueryService volumetryDeleteRowsBigqueryService)
     {
         this.monitorService = monitorService;
         this.dataMonitorService = dataMonitorService;
+        this.volumetryDeleteRowsBigqueryService = volumetryDeleteRowsBigqueryService;
     }
 
     @Scheduled(fixedRate = 600000) // 5 minutos
     public void scheduleConnectorMonitoring()
     {
         monitorService.monitorConnectors();
+
     }
 
     // @Scheduled(cron = "0 0 0 * * ?") // Run once a day at midnight
@@ -32,5 +38,6 @@ public class SchedulerConfig
     public void scheduleDataMonitoring()
     {
         dataMonitorService.dataMonitor();
+        volumetryDeleteRowsBigqueryService.deleteRowsInBigquery();
     }
 }

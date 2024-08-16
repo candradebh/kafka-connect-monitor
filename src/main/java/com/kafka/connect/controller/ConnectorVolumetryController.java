@@ -1,10 +1,13 @@
 package com.kafka.connect.controller;
 
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
@@ -18,6 +21,7 @@ import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
+import com.kafka.connect.services.BigQueryService;
 import com.kafka.connect.services.ConnectorVolumetryService;
 
 @RestController
@@ -42,6 +46,9 @@ public class ConnectorVolumetryController
 
     @Autowired
     VolumetryRowsRepository volumetryRowsRepository;
+
+    @Autowired
+    private BigQueryService bigqueryService;
 
     @GetMapping
     public ResponseEntity<List<ConnectorVolumetryEntity>> getAllVolumetries()
@@ -110,5 +117,32 @@ public class ConnectorVolumetryController
 
         return ResponseEntity.ok(volumetries);
 
+    }
+
+    @PostMapping("/deletar")
+    public ResponseEntity<List<VolumetryRowsEntity>> processVolumetry(@RequestBody VolumetryRowsEntity volumetry)
+    {
+        // Deletar o objeto na bigquery
+        try
+        {
+
+            String v_query = "DELETE FROM " + volumetry.getNomeTabelaBigquery() + " WHERE oid = " + volumetry.getOid();
+            System.out.println(v_query);
+
+            bigqueryService.executeQuery(volumetry.getClienteNome() + ".json", v_query);
+
+            volumetry.setDataDeletado(new Date());
+            volumetry.setDeletado(true);
+            volumetryRowsRepository.save(volumetry);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        List<VolumetryRowsEntity> volumetries = volumetryRowsRepository.findByClienteNomeTabelaAnoMesDiaHora(volumetry.getClienteNome(),
+            volumetry.getNomeTabela(), volumetry.getAno(), volumetry.getMes(), volumetry.getDia(), volumetry.getHora(), volumetry.getMinuto());
+
+        return ResponseEntity.ok(volumetries);
     }
 }

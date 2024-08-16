@@ -13,6 +13,8 @@ public class DataAnaliseYearDTO
 
     private String nomeTabela;
 
+    private String nomeTabelaBigquery;
+
     private int year;
 
     private int month;

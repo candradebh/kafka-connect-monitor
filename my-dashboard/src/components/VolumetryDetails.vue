@@ -14,8 +14,6 @@
           <th>Data da Busca</th>
           <th>Postgres</th>
           <th>Bigquery</th>
-          <th>Query Source</th>
-          <th>Query Sink</th>
           <th>Status</th>
           <th></th>
         </tr>
@@ -26,28 +24,34 @@
           <td>{{ volumetry.dataBusca | formatDate }}</td>
           <td>{{ volumetry.postgres }}</td>
           <td>{{ volumetry.bigquery }}</td>
-          <td>{{ volumetry.querySource }}</td>
-          <td>{{ volumetry.querySink }}</td>
           <td>{{ volumetry.postgres == volumetry.bigquery ? "OK" : "ERROR" }}</td>
           <td>
             <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
+            <button @click="openPopup(volumetry)">Ver queries</button>
           </td>
         </tr>
       </tbody>
     </table>
-    
+
+    <PopupQueries v-if="showPopup" :volumetry="selectedVolumetry" @close="showPopup = false" />
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+import PopupQueries from './PopUpQueries.vue'; // Importe o componente PopupQueries
 
 export default {
   name: 'VolumetryDetails',
   props: ['clientName'],
+  components: {
+    PopupQueries, // Declare o componente PopupQueries
+  },
   data() {
     return {
-      volumetries: []
+      volumetries: [],
+      showPopup: false,
+      selectedVolumetry: null,
     };
   },
   computed: {
@@ -70,8 +74,18 @@ export default {
         console.error('Error fetching volumetries:', error);
       }
     },
-    viewDetails(clientName,tableName) {
-      this.$router.push({ name: 'VolumetryTableDetails', params: { clientName,tableName } });
+    openPopup(volumetry) {
+      console.log('Popup is being opened for:', volumetry);
+      this.selectedVolumetry = volumetry;
+      this.showPopup = true;
+    },
+    closePopup() {
+      console.log('Popup is being closed');
+      this.showPopup = false;
+      this.selectedVolumetry = null;
+    },
+    viewDetails(clientName, tableName) {
+      this.$router.push({ name: 'VolumetryTableDetails', params: { clientName, tableName } });
     },
   }
 };

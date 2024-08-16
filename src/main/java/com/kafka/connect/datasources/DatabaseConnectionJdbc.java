@@ -63,12 +63,12 @@ public class DatabaseConnectionJdbc
         return total;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYear(String p_tabela, String p_nomeCliente)
+    public List<DataAnaliseYearDTO> getDataAnaliseYear(String p_tabela, String p_nomeCliente, String p_nomeColunaData)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(YEAR FROM datacriacaoservidor)::int AS year, " + //
-            " EXTRACT(MONTH FROM datacriacaoservidor)::int AS month, " + //
+            " EXTRACT(YEAR FROM " + p_nomeColunaData + ")::int AS year, " + //
+            " EXTRACT(MONTH FROM " + p_nomeColunaData + " )::int AS month, " + //
             " COUNT(*)::int AS total_records " + //
             " FROM " + p_tabela + //
             " GROUP BY year, month " + //
@@ -104,15 +104,15 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String p_tabela, String p_nomeCliente, int year, int month)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonth(String p_tabela, String p_nomeCliente, String p_nomeColunaData, int year, int month)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(DAY FROM datacriacaoservidor)::int AS day, " + //
+            " EXTRACT(DAY FROM " + p_nomeColunaData + ")::int AS day, " + //
             " COUNT(*)::int AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + ") = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + ") = " + month + //
             " GROUP BY day " + //
             " ORDER BY day; ";
 
@@ -147,16 +147,16 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDay(String p_tabela, String p_nomeCliente, int year, int month, int day)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDay(String p_tabela, String p_nomeCliente, String p_nomeColunaData, int year, int month, int day)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(HOUR FROM datacriacaoservidor)::INT AS hour, " + //
+            " EXTRACT(HOUR FROM " + p_nomeColunaData + ")::INT AS hour, " + //
             " COUNT(*)::int AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + ") = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + ") = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + ") = " + day + //
             " GROUP BY hour " + //
             " ORDER BY hour; ";
 
@@ -192,17 +192,18 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHour(String p_tabela, String p_nomeCliente, int year, int month, int day, int hour)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHour(String p_tabela, String p_nomeCliente, String p_nomeColunaData, int year, int month, int day,
+        int hour)
     {
 
         String v_query = "SELECT " + //
-            " EXTRACT(MINUTE FROM datacriacaoservidor)::INT AS minutes, " + //
+            " EXTRACT(MINUTE FROM " + p_nomeColunaData + ")::INT AS minutes, " + //
             " COUNT(*)::int AS total_records " + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
-            " AND EXTRACT(HOUR FROM datacriacaoservidor) = " + hour + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + ") = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + ") = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + ") = " + day + //
+            " AND EXTRACT(HOUR FROM " + p_nomeColunaData + ") = " + hour + //
             " GROUP BY minutes " + //
             " ORDER BY minutes; ";
 
@@ -239,17 +240,17 @@ public class DatabaseConnectionJdbc
         return v_listaDadosYearMouth;
     }
 
-    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHourMinutes(String p_tabela, String p_nomeCliente, int year, int month, int day, int hour,
-        int minute)
+    public List<DataAnaliseYearDTO> getDataAnaliseYearMonthDayHourMinutes(String p_tabela, String p_nomeCliente, String p_nomeColunaData, int year, int month,
+        int day, int hour, int minute)
     {
 
         String v_query = "SELECT oid" + //
             " FROM " + p_tabela + //
-            " WHERE EXTRACT(YEAR FROM datacriacaoservidor) = " + year + //
-            " AND EXTRACT(MONTH FROM datacriacaoservidor) = " + month + //
-            " AND EXTRACT(DAY FROM datacriacaoservidor) = " + day + //
-            " AND EXTRACT(HOUR FROM datacriacaoservidor) = " + hour + //
-            " AND EXTRACT(minute FROM datacriacaoservidor) = " + minute + //
+            " WHERE EXTRACT(YEAR FROM " + p_nomeColunaData + " ) = " + year + //
+            " AND EXTRACT(MONTH FROM " + p_nomeColunaData + " ) = " + month + //
+            " AND EXTRACT(DAY FROM " + p_nomeColunaData + " ) = " + day + //
+            " AND EXTRACT(HOUR FROM " + p_nomeColunaData + " ) = " + hour + //
+            " AND EXTRACT(MINUTE FROM " + p_nomeColunaData + " ) = " + minute + //
             " ; ";
 
         List<DataAnaliseYearDTO> v_listaDadosYearMouth = new ArrayList<DataAnaliseYearDTO>();

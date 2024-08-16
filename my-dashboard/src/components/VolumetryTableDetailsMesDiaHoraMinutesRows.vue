@@ -17,6 +17,8 @@
           <th>OidPostgres</th>
           <th>OidBigquery</th>
           <th>Status</th>
+          <th>Deletado</th>
+          <th>Data deletado</th>
           <th></th>
         </tr>
       </thead>
@@ -28,8 +30,10 @@
           <td>{{ volumetry.postgres }}</td>
           <td>{{ volumetry.bigquery }}</td>
           <td>{{ volumetry.postgres == volumetry.bigquery ? "OK" : "ERROR" }}</td>
+          <td>{{ volumetry.deletado }}</td>
+          <td>{{ volumetry.dataDeletado | formatDate }}</td>
           <td>
-            <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
+            <button v-if="volumetry.postgres != volumetry.bigquery" @click="sendVolumetry(volumetry)">Deletar</button>
           </td>
         </tr>
       </tbody>
@@ -68,7 +72,15 @@ export default {
       } catch (error) {
         console.error('Erro ao obter os dados:', error);
       }
+    },
+    async sendVolumetry(volumetry) {
+    try {
+      const response = await axios.post('http://localhost:9999/volumetries/deletar', volumetry);
+      this.volumetries = response.data;
+    } catch (error) {
+      console.error('Erro ao enviar os dados:', error);
     }
+  },
   }
 };
 </script>

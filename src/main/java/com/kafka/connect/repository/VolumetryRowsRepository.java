@@ -22,4 +22,7 @@ public interface VolumetryRowsRepository extends JpaRepository<VolumetryRowsEnti
     List<VolumetryRowsEntity> findByClienteNomeTabelaAnoMesDiaHora(@Param("clienteNome") String clienteNome, @Param("nomeTabela") String nomeTabela,
         @Param("ano") int ano, @Param("mes") int mes, @Param("dia") int dia, @Param("hora") int hora, @Param("minuto") int minuto);
 
+    @Query("SELECT c FROM VolumetryRowsEntity c WHERE c.deletado = false and c.postgres = false and c.bigquery = true")
+    List<VolumetryRowsEntity> findByDeletadoIsFalse();
+
 }
