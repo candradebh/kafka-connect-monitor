@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.kafka.connect.entity.ConnectorStatusEntity;
-import com.kafka.connect.services.ConnectorStatusService;
+import com.kafka.connect.repository.ConnectorStatusRepository;
 
 @RestController
 @RequestMapping("/status")
@@ -15,12 +15,12 @@ public class ConnectorStatusController
 {
 
     @Autowired
-    private ConnectorStatusService service;
+    private ConnectorStatusRepository repository;
 
     @GetMapping
     public ResponseEntity<List<ConnectorStatusEntity>> getAllStatus()
     {
-        List<ConnectorStatusEntity> list = service.findAll();
+        List<ConnectorStatusEntity> list = repository.findAll();
         return ResponseEntity.ok(list);
     }
 }

@@ -3,9 +3,10 @@ package com.kafka.connect.services;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.kafka.connect.util.SchedulableTask;
 
-@Service
-public class KafkaConnectorStatusService
+@Service("KafkaConnectorStatusService")
+public class KafkaConnectorStatusService implements SchedulableTask
 {
 
     private static final Logger logger = Logger.getLogger(KafkaConnectorStatusService.class.getName());
@@ -13,7 +14,7 @@ public class KafkaConnectorStatusService
     @Autowired
     private ConnectorConfigService connectorConfigService;
 
-    public void monitorConnectors()
+    public void execute()
     {
         logger.info("Iniciando monitoramento do status dos conectores...");
 

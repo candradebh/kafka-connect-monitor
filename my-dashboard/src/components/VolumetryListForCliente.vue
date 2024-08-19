@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h1>Connectores Clientes</h1>
+    <h1>Volumetria dos Clientes</h1>
     <v-data-table
       :headers="headers"
       :items="connectorSummaries"
       class="elevation-1"
     >
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn icon @click="viewDetails(item.nomeCliente)">
+        <v-btn icon @click="viewVolumetry(item.nomeCliente)">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
       </template>

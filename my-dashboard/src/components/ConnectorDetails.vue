@@ -132,7 +132,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
   name: 'ConnectorDetails',
@@ -151,7 +150,7 @@ export default {
   methods: {
     async fetchConnectorDetails() {
       try {
-        const response = await axios.get(`http://localhost:9999/connectors/${this.id}`);
+        const response = await this.$api.get(`/connectors/${this.id}`);
         this.connector = response.data;
       } catch (error) {
         console.error('Error fetching connector details:', error);

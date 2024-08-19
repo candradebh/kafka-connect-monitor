@@ -34,10 +34,11 @@ import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
+import com.kafka.connect.util.SchedulableTask;
 import jakarta.persistence.EntityManager;
 
-@Service
-public class DataMonitoringService
+@Service("DataMonitoringService")
+public class DataMonitoringService implements SchedulableTask
 {
     private static final Logger logger = Logger.getLogger(KafkaConnectorStatusService.class.getName());
 
@@ -91,12 +92,6 @@ public class DataMonitoringService
 
         logger.info("Atualizando volumetria com os dados de origem e destino");
         this.atualizarVolumetriaTabelasSourceAndSink();
-
-        // logger.info("Iniciando a volumetria dos conectores sources...");
-        // this.atualizarVolumetriaSourceConnectors();
-
-        // logger.info("Iniciando a volumetria dos conectores sinks...");
-        // this.atualizarVolumetriaSinkConnectors();
 
         logger.info("Data Monitor - Finalizado");
     }
@@ -588,7 +583,7 @@ public class DataMonitoringService
     private String obterDataOntemParaBuscar()
     {
         // data de ontem
-        LocalDate yesterday = LocalDate.now().minusDays(2);
+        LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDateTime startOfDayYesterday = yesterday.atStartOfDay();// inico as 00:00
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -611,5 +606,10 @@ public class DataMonitoringService
     {
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         transactionManager.commit(status);
+    }
+
+    public void execute()
+    {
+        this.dataMonitor();
     }
 }

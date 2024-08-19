@@ -1,47 +1,44 @@
 <template>
   <div>
-    <h1>Connectores monitorados de {{clientName}}</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th>Client Name</th>
-          <th>Type</th>
-          <th>Status Conector</th>
-          <th>Status Tasks</th>
-          <th>Data Ultimo Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="connector in connectors" :key="connector.id">
-          <td>{{ connector.id }}</td>
-          <td>{{ connector.name }}</td>
-          <td>{{ connector.nomeCliente }}</td>
-          <td>{{ connector.type }}</td>
-          <td>{{ connector.ultimoStatusConector }}</td>
-          <td>{{ connector.ultimoStatusTask1 }}</td>
-          <td>{{ connector.dataUltimoStatus | formatDate }}</td>
-          <td>
-            <button @click="viewDetails(connector.id)">Detalhes</button>
-            <button @click="viewVolumetry(connector.nomeCliente)">Volumetria</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <h1>Connectores monitorados de {{ clientName }}</h1>
+
+    <v-data-table
+      :headers="headers"
+      :items="connectors"
+      :items-per-page="connectors.length"  
+      :disable-pagination="false"
+      class="elevation-1"
+       
+    >
+      
+      <template v-slot:[`item.dataUltimoStatus`]="{ item }">
+        {{ item.dataUltimoStatus | formatDate }}
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-btn @click="viewDetails(item.id)">Detalhes</v-btn>
+      </template>
+    </v-data-table>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
   name: 'ConnectorList',
   props: ['clientName'],
   data() {
     return {
-      connectors: []
+      connectors: [],
+      headers: [
+        { text: 'ID', value: 'id' },
+        { text: 'Name', value: 'name' },
+        { text: 'Client Name', value: 'nomeCliente' },
+        { text: 'Type', value: 'type' },
+        { text: 'Status Conector', value: 'ultimoStatusConector' },
+        { text: 'Status Tasks', value: 'ultimoStatusTask1' },
+        { text: 'Data Ultimo Status', value: 'dataUltimoStatus' },
+        { text: 'Ações', value: 'actions', sortable: false }
+      ]
     };
   },
   mounted() {
@@ -50,7 +47,7 @@ export default {
   methods: {
     async fetchConnectors() {
       try {
-        const response = await axios.get(`http://localhost:9999/connectors/cliente/${this.clientName}`);
+        const response = await this.$api.get(`/connectors/cliente/${this.clientName}`);
         this.connectors = response.data;
       } catch (error) {
         console.error('Error fetching connectors:', error);
@@ -67,18 +64,7 @@ export default {
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-th {
-  background-color: #f4f4f4;
-}
+/* Personalize a aparência conforme necessário */
 button {
   margin-right: 5px;
 }

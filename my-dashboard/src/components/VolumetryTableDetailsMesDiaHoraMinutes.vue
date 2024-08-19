@@ -2,57 +2,67 @@
   <div>
     <h2>Cliente: {{ clientName }} </h2>
     <h2>Tabela: {{ tableName }} </h2>
-    <h2>HORA: {{hora}} | DIA: {{ dia }} | MES: {{ mes }} | ANO: {{ ano }}</h2>
+    <h2>HORA: {{ hora }} | DIA: {{ dia }} | MÊS: {{ mes }} | ANO: {{ ano }}</h2>
+    
     <div>
       <p><b>OK:</b> {{ okCount }}</p>
       <p><b>ERROR:</b> {{ errorCount }}</p>
     </div>
 
-    <table>
-      <thead>
-        <tr>  
-          <th>Data Busca</th>
-          <th>Minutos</th>
-          <th>Postgres</th>
-          <th>Bigquery</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
-          <td>{{ volumetry.dataBusca | formatDate }}</td>
-          <td>{{ volumetry.minuto }}</td>
-          <td>{{ volumetry.totalRecordsPostgres }}</td>
-          <td>{{ volumetry.totalRecordsBigquery }}</td>
-          <td>{{ volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery ? "OK" : "ERROR" }}</td>
-          <td>
-            <button @click="viewDetails(clientName,tableName,volumetry.ano,volumetry.mes,volumetry.dia, volumetry.hora, volumetry.minuto)">Detalhes</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <v-data-table
+      :headers="headers"
+      :items="volumetries"
+      class="elevation-1"
+      :items-per-page="volumetries.length"  
+      :disable-pagination="true"  
+    >
+      <template v-slot:[`item.dataBusca`]="{ item }">
+        {{ item.dataBusca | formatDate }}
+      </template>
+      <template v-slot:[`item.minuto`]="{ item }">
+        {{ item.minuto }}
+      </template>
+      <template v-slot:[`item.totalRecordsPostgres`]="{ item }">
+        {{ item.totalRecordsPostgres }}
+      </template>
+      <template v-slot:[`item.totalRecordsBigquery`]="{ item }">
+        {{ item.totalRecordsBigquery }}
+      </template>
+      <template v-slot:[`item.status`]="{ item }">
+        {{ item.totalRecordsPostgres === item.totalRecordsBigquery ? 'OK' : 'ERROR' }}
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-btn @click="viewDetails(clientName, tableName, item.ano, item.mes, item.dia, item.hora, item.minuto)">Detalhes</v-btn>
+      </template>
+    </v-data-table>
     
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
   name: 'VolumetryTableDetailsMesDiaHoraMinutos',
-  props: ['clientName','tableName','ano','mes','dia','hora'],
+  props: ['clientName', 'tableName', 'ano', 'mes', 'dia', 'hora'],
   data() {
     return {
-      volumetries: []
+      volumetries: [],
+      headers: [
+        { text: 'Data Busca', value: 'dataBusca' },
+        { text: 'Minutos', value: 'minuto' },
+        { text: 'Postgres', value: 'totalRecordsPostgres' },
+        { text: 'Bigquery', value: 'totalRecordsBigquery' },
+        { text: 'Status', value: 'status' },
+        { text: 'Ações', value: 'actions', sortable: false }
+      ]
     };
   },
   computed: {
     okCount() {
-      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres == volumetry.totalRecordsBigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres === volumetry.totalRecordsBigquery).length;
     },
     errorCount() {
-      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres != volumetry.totalRecordsBigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.totalRecordsPostgres !== volumetry.totalRecordsBigquery).length;
     }
   },
   mounted() {
@@ -61,30 +71,19 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}/${this.dia}/${this.hora}`);
+        const response = await this.$api.get(`/volumetries/${this.clientName}/${this.tableName}/${this.ano}/${this.mes}/${this.dia}/${this.hora}`);
         this.volumetries = response.data;
       } catch (error) {
         console.error('Erro ao obter os dados:', error);
       }
     },
-    viewDetails(clientName,tableName,ano,mes,dia,hora, minuto) {
-      this.$router.push({ name: 'VolumetryTableDetailsMesDiaHoraMinutosRows', params: { clientName,tableName,ano,mes,dia,hora, minuto } });
+    viewDetails(clientName, tableName, ano, mes, dia, hora, minuto) {
+      this.$router.push({ name: 'VolumetryTableDetailsMesDiaHoraMinutosRows', params: { clientName, tableName, ano, mes, dia, hora, minuto } });
     },
   }
 };
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-th {
-  background-color: #f4f4f4;
-}
+/* Personalize a aparência conforme necessário */
 </style>

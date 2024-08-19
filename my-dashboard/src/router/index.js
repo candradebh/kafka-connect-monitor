@@ -9,14 +9,32 @@ import VolumetryTableDetailsMesDia from '@/components/VolumetryTableDetailsMesDi
 import VolumetryTableDetailsMesDiaHora from '@/components/VolumetryTableDetailsMesDiaHora.vue';
 import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/VolumetryTableDetailsMesDiaHoraMinutes.vue';
 import VolumetryTableDetailsMesDiaHoraMinutesRows from '@/components/VolumetryTableDetailsMesDiaHoraMinutesRows.vue';
+import ServicesDataUpdate from '@/components/ServicesDataUpdate.vue';
+import VolumetryListForCliente from '@/components/VolumetryListForCliente.vue';
+import HomePage from '@/components/HomePage.vue';
 
 Vue.use(Router);
 
 const routes = [
   {
     path: '/',
+    name: 'HomePage',
+    component: HomePage
+  },
+  {
+    path: '/volumetry',
+    name: 'VolumetryListForCliente',
+    component: VolumetryListForCliente
+  },
+  {
+    path: '/connectors',
     name: 'ConnectorListForCliente',
     component: ConnectorListForCliente
+  },
+  {
+    path: '/services',
+    name: 'ServicesDataUpdate',
+    component: ServicesDataUpdate
   },
   {
     path: '/connectors/:clientName',

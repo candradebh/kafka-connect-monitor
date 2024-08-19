@@ -7,38 +7,34 @@
       <p><b>ERROR:</b> {{ errorCount }}</p>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Nome da Tabela</th>
-          <th>Data da Busca</th>
-          <th>Postgres</th>
-          <th>Bigquery</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="volumetry in volumetries" :key="volumetry.tabela">
-          <td>{{ volumetry.tabela }}</td>
-          <td>{{ volumetry.dataBusca | formatDate }}</td>
-          <td>{{ volumetry.postgres }}</td>
-          <td>{{ volumetry.bigquery }}</td>
-          <td>{{ volumetry.postgres == volumetry.bigquery ? "OK" : "ERROR" }}</td>
-          <td>
-            <button @click="viewDetails(clientName,volumetry.tabela)">Detalhes</button>
-            <button @click="openPopup(volumetry)">Ver queries</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <v-data-table
+      :headers="headers"
+      :items="volumetries"
+      :disable-pagination="true"
+      class="elevation-1"
+      fixed-header
+    >
+      <template v-slot:[`item.dataBusca`]="{ item }">
+        {{ item.dataBusca | formatDate }}
+      </template>
+      
+      <template v-slot:[`item.difference`]="{ item }">
+        {{ item.postgres - item.bigquery }}
+      </template>
+      <template v-slot:[`item.status`]="{ item }">
+        {{ item.postgres === item.bigquery ? 'OK' : 'ERROR' }}
+      </template>
+      <template v-slot:[`item.actions`]="{ item }">
+        <v-btn @click="viewDetails(clientName, item.tabela)">Detalhes</v-btn>
+        <v-btn @click="openPopup(item)">Ver queries</v-btn>
+      </template>
+    </v-data-table>
 
-    <PopupQueries v-if="showPopup" :volumetry="selectedVolumetry" @close="showPopup = false" />
+    <PopupQueries v-if="showPopup" :volumetry="selectedVolumetry" @close="closePopup" />
   </div>
 </template>
 
 <script>
-import axios from 'axios';
 import PopupQueries from './PopUpQueries.vue'; // Importe o componente PopupQueries
 
 export default {
@@ -52,14 +48,23 @@ export default {
       volumetries: [],
       showPopup: false,
       selectedVolumetry: null,
+      headers: [
+        { text: 'Nome da Tabela', value: 'tabela' },
+        { text: 'Data da Busca', value: 'dataBusca' },
+        { text: 'Postgres', value: 'postgres' },
+        { text: 'Bigquery', value: 'bigquery' },
+        { text: 'Diferença', value: 'difference' },
+        { text: 'Status', value: 'status' },
+        { text: 'Ações', value: 'actions', sortable: false }
+      ],
     };
   },
   computed: {
     okCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres == volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.postgres === volumetry.bigquery).length;
     },
     errorCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres != volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.postgres !== volumetry.bigquery).length;
     }
   },
   mounted() {
@@ -68,19 +73,17 @@ export default {
   methods: {
     async fetchVolumetries() {
       try {
-        const response = await axios.get(`http://localhost:9999/volumetries/${this.clientName}`);
+        const response = await this.$api.get(`/volumetries/${this.clientName}`);
         this.volumetries = response.data;
       } catch (error) {
         console.error('Error fetching volumetries:', error);
       }
     },
     openPopup(volumetry) {
-      //console.log('PopUp Open:', volumetry);
       this.selectedVolumetry = volumetry;
       this.showPopup = true;
     },
     closePopup() {
-      //console.log('Popup is being closed');
       this.showPopup = false;
       this.selectedVolumetry = null;
     },
@@ -92,16 +95,5 @@ export default {
 </script>
 
 <style scoped>
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-th, td {
-  padding: 10px;
-  border: 1px solid #ccc;
-  text-align: left;
-}
-th {
-  background-color: #f4f4f4;
-}
+/* Se precisar de alguma customização adicional, você pode adicionar aqui */
 </style>
