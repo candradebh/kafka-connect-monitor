@@ -18,6 +18,7 @@ import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
+import com.kafka.connect.entity.StatusVolumetry;
 import com.kafka.connect.entity.TableMetadataEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
 import com.kafka.connect.entity.VolumetryHourEntity;
@@ -123,6 +124,8 @@ public class DataMonitoringService implements SchedulableTask
                         this.atualizarVolumetriaTabelaSinkConnector(connector, v_volumetry, v_tableEntity, v_formattedDate, v_nomeTabelaBigQuery);
 
                         v_volumetry.setDataBusca(new Date());
+                        v_volumetry.setDifference(v_volumetry.getPostgres() - v_volumetry.getBigquery());
+                        v_volumetry.setStatus(this.calcularStatus(v_volumetry.getDifference()));
 
                         connectorVolumetryRepository.save(v_volumetry);
 
@@ -146,6 +149,22 @@ public class DataMonitoringService implements SchedulableTask
                 // implementar uma busca em todas as tabelas do banco, quem sabe no futuro
             }
             v_databaseConnectionJdbc.close();
+        }
+    }
+
+    private String calcularStatus(long v_diff)
+    {
+        if (v_diff > 0)
+        {
+            return StatusVolumetry.VERIFICAR.name();
+        }
+        else if (v_diff < 0)
+        {
+            return StatusVolumetry.ERRO.name();
+        }
+        else
+        {
+            return StatusVolumetry.OK.name();
         }
     }
 
@@ -178,7 +197,6 @@ public class DataMonitoringService implements SchedulableTask
             for (VolumetryYearEntity volumetryYearEntity : v_listaVolumetriaAno)
             {
                 if (volumetryYearEntity.getTotalRecordsPostgres() != volumetryYearEntity.getTotalRecordsBigquery())
-                // if (true)
                 {
 
                     // SOURCE - MES E DIA

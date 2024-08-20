@@ -37,6 +37,10 @@ public class ConnectorVolumetryEntity
 
     private long bigquery;
 
+    private long difference;
+
+    private String status;
+
     @Column(columnDefinition = "TEXT")
     private String querySource;
 

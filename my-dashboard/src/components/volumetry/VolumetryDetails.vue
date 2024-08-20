@@ -18,12 +18,6 @@
         {{ item.dataBusca | formatDate }}
       </template>
       
-      <template v-slot:[`item.difference`]="{ item }">
-        {{ item.postgres - item.bigquery }}
-      </template>
-      <template v-slot:[`item.status`]="{ item }">
-        {{ item.postgres === item.bigquery ? 'OK' : 'ERROR' }}
-      </template>
       <template v-slot:[`item.actions`]="{ item }">
         <v-btn @click="viewDetails(clientName, item.tabela)">Detalhes</v-btn>
         <v-btn @click="openPopup(item)">Ver queries</v-btn>
@@ -94,6 +88,4 @@ export default {
 };
 </script>
 
-<style scoped>
-/* Se precisar de alguma customização adicional, você pode adicionar aqui */
-</style>
+
