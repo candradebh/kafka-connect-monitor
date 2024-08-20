@@ -9,13 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
-import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import com.google.cloud.bigquery.TableResult;
 import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
@@ -75,12 +71,6 @@ public class DataMonitoringService implements SchedulableTask
 
     @Autowired
     private BigQueryService bigqueryService;
-
-    @Autowired
-    private PlatformTransactionManager transactionManager;
-
-    @Autowired
-    private EntityManager entityManager; // Para fazer flush manualmente
 
     @Transactional
     public void dataMonitor()
@@ -600,12 +590,6 @@ public class DataMonitoringService implements SchedulableTask
             v_tableMetaData = v_tableMetaDataOptional.get();
         }
         return v_tableMetaData;
-    }
-
-    private void commitTransaction()
-    {
-        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        transactionManager.commit(status);
     }
 
     public void execute()
