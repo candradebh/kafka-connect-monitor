@@ -1,24 +1,24 @@
-package com.kafka.connect.services;
+package com.kafka.connect.datasources;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
 
-@Service
-public class BigQueryService
+@Component
+public class BigQueryConnection
 {
 
     private final Map<String, BigQuery> bigQueryClients;
 
     @Autowired
-    public BigQueryService(Map<String, BigQuery> bigQueryClients)
+    public BigQueryConnection(Map<String, BigQuery> bigQueryClients)
     {
         this.bigQueryClients = bigQueryClients;
     }

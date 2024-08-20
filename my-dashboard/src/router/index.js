@@ -1,18 +1,20 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import ConnectorListForCliente from '../components/ConnectorListForCliente.vue';
-import ConnectorList from '../components/ConnectorList.vue';
-import ConnectorDetails from '../components/ConnectorDetails.vue';
-import VolumetryDetails from '../components/volumetry/VolumetryDetails.vue';
-import VolumetryTableDetails from '../components/volumetry/VolumetryTableDetails.vue';
+import HomePage from '@/components/HomePage.vue';
+import ConnectorListForCliente from '@/components/connectores/ConnectorListForCliente.vue';
+import ConnectorList from '@/components/connectores/ConnectorList.vue';
+import ConnectorDetails from '@/components/connectores/ConnectorDetails.vue';
+import VolumetryDetails from '@/components/volumetry/VolumetryDetails.vue';
+import VolumetryTableDetails from '@/components/volumetry/VolumetryTableDetails.vue';
 import VolumetryTableDetailsMesDia from '@/components/volumetry/VolumetryTableDetailsMesDia.vue';
 import VolumetryTableDetailsMesDiaHora from '@/components/volumetry/VolumetryTableDetailsMesDiaHora.vue';
 import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutes.vue';
 import VolumetryTableDetailsMesDiaHoraMinutesRows from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutesRows.vue';
 import VolumetryListForCliente from '@/components/volumetry/VolumetryListForCliente.vue';
-import HomePage from '@/components/HomePage.vue';
-import ScheduledTaskIndex from '@/components/ScheduledTaskIndex.vue';
-import ScheduledTaskEdit from '@/components/ScheduledTaskEdit.vue';
+import ScheduledTaskIndex from '@/components/scheduledTasks/ScheduledTaskIndex.vue';
+import ScheduledTaskEdit from '@/components/scheduledTasks/ScheduledTaskEdit.vue';
+import TableMetadataIndex from '@/components/tablemetadata/TableMetadataIndex.vue';
+import TableMetadataEdit from '@/components/tablemetadata/TableMetadataEdit.vue';
 
 Vue.use(Router);
 
@@ -90,6 +92,17 @@ const routes = [
     path: '/services/:id',
     name: 'ScheduledTaskEdit',
     component: ScheduledTaskEdit,
+    props: true
+  },
+  {
+    path: '/tables',
+    name: 'TableMetadataIndex',
+    component: TableMetadataIndex
+  },
+  {
+    path: '/tables/:id',
+    name: 'TableMetadataEdit',
+    component: TableMetadataEdit,
     props: true
   }
 ];

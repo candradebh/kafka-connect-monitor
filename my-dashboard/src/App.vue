@@ -53,6 +53,7 @@ export default {
       { title: 'Conectores', path: '/connectors' },
       { title: 'Volumetria', path: '/volumetry' },
       { title: 'Serviços', path: '/services' },
+      { title: 'Tabelas', path: '/tables' },
     ],
   }),
 };

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.google.cloud.bigquery.TableResult;
+import com.kafka.connect.datasources.BigQueryConnection;
 import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
@@ -70,7 +71,7 @@ public class DataMonitoringService implements SchedulableTask
     private ConnectorConfigService connectorConfigService;
 
     @Autowired
-    private BigQueryService bigqueryService;
+    private BigQueryConnection bigqueryService;
 
     @Transactional
     public void dataMonitor()

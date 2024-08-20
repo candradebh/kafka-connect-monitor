@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.kafka.connect.datasources.BigQueryConnection;
 import com.kafka.connect.entity.VolumetryRowsEntity;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.util.SchedulableTask;
@@ -24,7 +25,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
     private VolumetryRowsRepository volumetryRowsRepository;
 
     @Autowired
-    private BigQueryService bigqueryService;
+    private BigQueryConnection bigqueryService;
 
     @Transactional
     public void deleteRowsInBigquery()

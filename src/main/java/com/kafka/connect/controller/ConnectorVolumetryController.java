@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.kafka.connect.datasources.BigQueryConnection;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
 import com.kafka.connect.entity.VolumetryHourEntity;
@@ -21,7 +22,6 @@ import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
-import com.kafka.connect.services.BigQueryService;
 import com.kafka.connect.services.ConnectorVolumetryService;
 
 @RestController
@@ -48,7 +48,7 @@ public class ConnectorVolumetryController
     VolumetryRowsRepository volumetryRowsRepository;
 
     @Autowired
-    private BigQueryService bigqueryService;
+    private BigQueryConnection bigqueryService;
 
     @GetMapping
     public ResponseEntity<List<ConnectorVolumetryEntity>> getAllVolumetries()
