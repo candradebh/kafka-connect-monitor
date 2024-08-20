@@ -27,11 +27,7 @@
           </v-list>
         </v-navigation-drawer>
 
-        <v-main>
-          <v-breadcrumbs
-            :items="items"
-            divider="|"
-          ></v-breadcrumbs>
+        <v-main class="mt-5 ml-4">
           <router-view />
         </v-main>
       </v-layout>

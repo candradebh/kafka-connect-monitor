@@ -1,13 +1,20 @@
 <template>
   <div>
     <h2>Configuração de Tabelas</h2>
+    <div class="d-flex justify-end align-center mb-4">
+      <v-btn color="primary" @click="createTable">
+        <v-icon left>mdi-plus</v-icon>
+        Criar
+      </v-btn>
+    </div>
+    
     <v-data-table
       :headers="headers"
       :items="tables"
       class="elevation-1"
       @click:row="editTable"
     >
-    <template v-slot:[`item.volumetryData`]="{ item }">
+      <template v-slot:[`item.volumetryData`]="{ item }">
         <span v-if="item.volumetryData">Sim</span>
         <span v-else>Não</span>
       </template>
@@ -18,7 +25,7 @@
 <script>
 
 export default {
-  name: 'ScheduledTaskIndex',
+  name: 'TableMetadataIndex',
   data() {
     return {
       headers: [
@@ -43,8 +50,12 @@ export default {
         });
     },
     editTable(table) {
-      // Navega para a página de edição ou abre um modal de edição
+      // Navega para a página de edição
       this.$router.push({ name: 'TableMetadataEdit', params: { id: table.id } });
+    },
+    createTable() {
+      // Navega para a página de criação, sem ID
+      this.$router.push({ name: 'TableMetadataEdit' });
     }
   }
 };

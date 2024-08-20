@@ -29,6 +29,7 @@ public class TableMetadataService
     {
         List<TableMetadataEntity> initialData = Arrays.asList( //
             new TableMetadataEntity(null, "public.atendimento", "dataCriacaoServidor", true), //
+            new TableMetadataEntity(null, "public.grupopontoatendimentoponto", "dataassociacao", false), //
             new TableMetadataEntity(null, "public.planoacao", "dataCriacao", false), //
             new TableMetadataEntity(null, "public.versaoformulario", "ultimaatualizacao", false), //
             new TableMetadataEntity(null, "public.usuario", "ultimaatualizacao", false), //

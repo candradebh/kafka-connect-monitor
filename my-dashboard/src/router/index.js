@@ -89,7 +89,7 @@ const routes = [
     component: ScheduledTaskIndex
   },
   {
-    path: '/services/:id',
+    path: '/services/:serviceName',
     name: 'ScheduledTaskEdit',
     component: ScheduledTaskEdit,
     props: true
