@@ -12,9 +12,7 @@ import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.util.SchedulableTask;
 
 /**
- * Servico que apaga os registro na bigquery automaticamente
- * 
- * @author calbertoma
+ * Servico que apaga os registro na bigquery automaticamente quando ele existir na bigquery e não existir no postgres.
  */
 
 @Service("VolumetryDeleteRowsBigqueryService")
@@ -35,6 +33,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
         LocalDate today = LocalDate.now();
         LocalDate v_dataLimiteApagar = today.minusDays(2);
 
+        // busca todos os registros que existem na bigquery e nao existem no postgres
         List<VolumetryRowsEntity> v_listaVolumetryRows = volumetryRowsRepository.findByDeletadoIsFalse();
         for (VolumetryRowsEntity volumetryRowsEntity : v_listaVolumetryRows)
         {

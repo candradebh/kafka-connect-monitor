@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.TaskScheduler;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import com.kafka.connect.entity.ScheduledTaskEntity;
 import com.kafka.connect.repository.ScheduledTaskRepository;
 import com.kafka.connect.util.SchedulableTask;
-import jakarta.annotation.PostConstruct;
 
 @Service
 public class DynamicScheduledTaskService

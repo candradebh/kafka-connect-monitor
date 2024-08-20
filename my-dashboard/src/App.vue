@@ -28,6 +28,10 @@
         </v-navigation-drawer>
 
         <v-main>
+          <v-breadcrumbs
+            :items="items"
+            divider="|"
+          ></v-breadcrumbs>
           <router-view />
         </v-main>
       </v-layout>

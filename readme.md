@@ -9,6 +9,9 @@
 `mvn clean install`
 `mvn spring-boot:run`
 
+## Gerando jar
+`mvn clean package`
+
 
 
 

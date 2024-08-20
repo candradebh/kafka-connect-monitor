@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +18,6 @@ import com.kafka.connect.model.ConnectorStatus;
 import com.kafka.connect.model.ConnectorStatus.Task;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorStatusRepository;
-import jakarta.annotation.PostConstruct;
 
 @Service
 public class ConnectorConfigService
@@ -112,7 +111,17 @@ public class ConnectorConfigService
                     statusEntity.setConnectorWorkerId(status.getConnector().getWorker_id());
 
                     // Processar e salvar o status das tarefas
-                    List<TaskStatusEntity> taskEntities = status.getTasks().stream().map(new Function<Task, TaskStatusEntity>()
+                    List<TaskStatusEntity> taskEntities = new ArrayList<TaskStatusEntity>();
+                    for (Task task : status.getTasks())
+                    {
+                        TaskStatusEntity taskEntity = new TaskStatusEntity();
+                        taskEntity.setTaskId(task.getId());
+                        taskEntity.setTaskState(task.getState());
+                        taskEntity.setTaskWorkerId(task.getWorker_id());
+                        taskEntities.add(taskEntity);
+                    }
+
+                    /*      List<TaskStatusEntity> taskEntities1 = status.getTasks().stream().map(new Function<Task, TaskStatusEntity>()
                     {
                         public TaskStatusEntity apply(Task task)
                         {
@@ -123,7 +132,7 @@ public class ConnectorConfigService
                             return taskEntity;
                         }
                     }).toList(); // Use collect(Collectors.toList()) para versões anteriores do Java
-
+                    */
                     statusEntity.setTasks(taskEntities);
 
                     // Verificar erros e salvar motivo

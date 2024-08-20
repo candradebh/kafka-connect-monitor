@@ -5,141 +5,157 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.2</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>2.7.7</version>
+		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.kafka</groupId>
 	<artifactId>connect</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>kafka-connect-monitor</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
+	<url />
 	<licenses>
-		<license/>
+		<license />
 	</licenses>
 	<developers>
-		<developer/>
+		<developer />
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection />
+		<developerConnection />
+		<tag />
+		<url />
 	</scm>
 	<properties>
-		<java.version>17</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
-	
+		<java.version>11</java.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-web</artifactId>
-	    </dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
 		<dependency>
-		    <groupId>org.projectlombok</groupId>
-		    <artifactId>lombok</artifactId>
-		    <scope>provided</scope>
-		</dependency>
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-data-jpa</artifactId>
-	    </dependency>
-	    <dependency>
-	        <groupId>com.h2database</groupId>
-	        <artifactId>h2</artifactId>
-	        <scope>runtime</scope>
-	    </dependency>
-		<dependency>
-		    <groupId>org.postgresql</groupId>
-		    <artifactId>postgresql</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-		    <groupId>com.google.cloud</groupId>
-		    <artifactId>google-cloud-bigquery</artifactId>
-		    <version>2.18.0</version> <!-- Verifique se há uma versão mais recente -->
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
-	    <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-mail</artifactId>
-	    </dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.google.cloud</groupId>
+			<artifactId>google-cloud-bigquery</artifactId>
+			<version>2.18.0</version> <!-- Verifique se há uma versão mais recente -->
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
+
+
 	</dependencies>
 
 	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		 <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.0</version>
-                <executions>
-                    <execution>
-                        <id>install-node-and-npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>v16.13.0</nodeVersion>
-                            <npmVersion>8.1.0</npmVersion>
-                            <installDirectory>${project.basedir}/my-dashboard</installDirectory>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <arguments>install</arguments>
-                            <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+    <plugins>
+        <!-- Plugin para construir o frontend Vue.js -->
+        <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>1.12.0</version>
+            <executions>
+                <execution>
+                    <id>npm install</id>
+                    <goals>
+                        <goal>npm</goal>
+                    </goals>
+                    <configuration>
+                        <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
+                        <npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>npm run build</id>
+                    <goals>
+                        <goal>npm</goal>
+                    </goals>
+                    <configuration>
+                        <arguments>run build</arguments>
+                        <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
+                        <npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
 
-            <!-- Plugin para executar o Vue.js -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>run-vue-serve</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>serve</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-		</plugins>
-	</build>
+        <!-- Plugin para copiar os arquivos do frontend para o diretório estático do Spring Boot -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>3.2.0</version>
+            <executions>
+                <execution>
+                    <id>copy-resources</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.build.directory}/classes/static</outputDirectory>
+                        <resources>
+                            <resource>
+                                <directory>${project.basedir}/my-dashboard/dist</directory>
+                                <includes>
+                                    <include>**/*</include>
+                                </includes>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+
+        <!-- Plugin para empacotar o Spring Boot em um JAR -->
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>2.7.7</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+
 
 </project>

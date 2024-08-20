@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
+import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -35,7 +36,6 @@ import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
 import com.kafka.connect.util.SchedulableTask;
-import jakarta.persistence.EntityManager;
 
 @Service("DataMonitoringService")
 public class DataMonitoringService implements SchedulableTask
@@ -136,10 +136,10 @@ public class DataMonitoringService implements SchedulableTask
                         connectorVolumetryRepository.save(v_volumetry);
 
                         // Garantir que as mudanças sejam aplicadas
-                        entityManager.flush();
+                        // entityManager.flush();
 
                         // Commit das alterações antes de continuar
-                        this.commitTransaction();
+                        // this.commitTransaction();
 
                         logger.info("Atualizado a volumetria[Nivel 1]: Cliente(" + connector.getNomeCliente() + "), connector(" + connector.getName()
                             + "), tabela(" + v_table + ")");
