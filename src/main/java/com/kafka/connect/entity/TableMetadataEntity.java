@@ -28,6 +28,7 @@ public class TableMetadataEntity
 
     private String dateColumnName;
 
+    // indica que a tabela deve ter sua volumetria mais detalhada até o delete dos registros no bigquery
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean volumetryData;
 }

@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import PopupQueries from './PopUpQueries.vue'; // Importe o componente PopupQueries
+import PopupQueries from '@/components/PopUpQueries.vue'; // Importe o componente PopupQueries
 
 export default {
   name: 'VolumetryDetails',

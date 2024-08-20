@@ -1,6 +1,5 @@
 package com.kafka.connect.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,12 +79,12 @@ public class ScheduledTaskController
     }
 
     @GetMapping("/{serviceName}")
-    public ResponseEntity<LocalDateTime> getLastExecutionTime(@PathVariable String serviceName)
+    public ResponseEntity<ScheduledTaskEntity> getLastExecutionTime(@PathVariable String serviceName)
     {
         Optional<ScheduledTaskEntity> taskOpt = scheduledTaskRepository.findByServiceName(serviceName);
         if (taskOpt.isPresent())
         {
-            return ResponseEntity.ok(taskOpt.get().getLastExecutionTime());
+            return ResponseEntity.ok(taskOpt.get());
         }
         else
         {

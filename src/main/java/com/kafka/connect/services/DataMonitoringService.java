@@ -313,7 +313,7 @@ public class DataMonitoringService implements SchedulableTask
 
         // montar a query
         String v_sql = "SELECT COUNT(*) as total FROM " + p_table;
-        if (v_tableEntity != null && v_tableEntity.getDateColumnName() != null && v_formattedDate != null)
+        if (v_tableEntity != null && v_tableEntity.isVolumetryData() && v_tableEntity.getDateColumnName() != null && v_formattedDate != null)
         {
             v_sql += " WHERE " + v_tableEntity.getDateColumnName() + " < '" + v_formattedDate + "'";
         }
@@ -331,7 +331,7 @@ public class DataMonitoringService implements SchedulableTask
         String v_query = "SELECT COUNT(*) FROM " + v_nomeTabelaBigQuery;
         // TableMetadataEntity v_tabelaEntity = this.obterDadosTabela(v_volumetry.getTabela());
 
-        if (v_tabelaEntity != null && v_tabelaEntity.getDateColumnName() != null && v_formattedDate != null)
+        if (v_tabelaEntity != null && v_tabelaEntity.isVolumetryData() && v_tabelaEntity.getDateColumnName() != null && v_formattedDate != null)
         {
             String formattedDate = this.obterDataOntemParaBuscar();
             v_query += " WHERE " + v_tabelaEntity.getDateColumnName() + " < '" + formattedDate + "'";

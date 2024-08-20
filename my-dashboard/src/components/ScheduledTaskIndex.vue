@@ -5,7 +5,11 @@
       :headers="headers"
       :items="services"
       class="elevation-1"
+      @click:row="editService"
     >
+    <template v-slot:[`item.lastExecutionTime`]="{ item }">
+        {{ item.lastExecutionTime | formatDate }}
+      </template>
     </v-data-table>
   </div>
 </template>
@@ -20,7 +24,6 @@ export default {
         { text: 'Cron', value: 'cronExpression' },
         { text: 'Ultima Execução', value: 'lastExecutionTime' },
         { text: 'Descrição', value: 'description' },
-        { text: 'Ações', value: 'actions', sortable: false },
       ],
       services: []
     };
@@ -37,6 +40,10 @@ export default {
         .catch(error => {
           console.error('Error fetching connector summaries:', error);
         });
+    },
+    editService(service) {
+      // Navega para a página de edição ou abre um modal de edição
+      this.$router.push({ name: 'ScheduledTaskEdit', params: { serviceName: service.serviceName } });
     }
   }
 };

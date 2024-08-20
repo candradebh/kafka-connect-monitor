@@ -3,15 +3,16 @@ import Router from 'vue-router';
 import ConnectorListForCliente from '../components/ConnectorListForCliente.vue';
 import ConnectorList from '../components/ConnectorList.vue';
 import ConnectorDetails from '../components/ConnectorDetails.vue';
-import VolumetryDetails from '../components/VolumetryDetails.vue';
-import VolumetryTableDetails from '../components/VolumetryTableDetails.vue';
-import VolumetryTableDetailsMesDia from '@/components/VolumetryTableDetailsMesDia.vue';
-import VolumetryTableDetailsMesDiaHora from '@/components/VolumetryTableDetailsMesDiaHora.vue';
-import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/VolumetryTableDetailsMesDiaHoraMinutes.vue';
-import VolumetryTableDetailsMesDiaHoraMinutesRows from '@/components/VolumetryTableDetailsMesDiaHoraMinutesRows.vue';
-import ServicesDataUpdate from '@/components/ServicesDataUpdate.vue';
-import VolumetryListForCliente from '@/components/VolumetryListForCliente.vue';
+import VolumetryDetails from '../components/volumetry/VolumetryDetails.vue';
+import VolumetryTableDetails from '../components/volumetry/VolumetryTableDetails.vue';
+import VolumetryTableDetailsMesDia from '@/components/volumetry/VolumetryTableDetailsMesDia.vue';
+import VolumetryTableDetailsMesDiaHora from '@/components/volumetry/VolumetryTableDetailsMesDiaHora.vue';
+import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutes.vue';
+import VolumetryTableDetailsMesDiaHoraMinutesRows from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutesRows.vue';
+import VolumetryListForCliente from '@/components/volumetry/VolumetryListForCliente.vue';
 import HomePage from '@/components/HomePage.vue';
+import ScheduledTaskIndex from '@/components/ScheduledTaskIndex.vue';
+import ScheduledTaskEdit from '@/components/ScheduledTaskEdit.vue';
 
 Vue.use(Router);
 
@@ -31,11 +32,7 @@ const routes = [
     name: 'ConnectorListForCliente',
     component: ConnectorListForCliente
   },
-  {
-    path: '/services',
-    name: 'ServicesDataUpdate',
-    component: ServicesDataUpdate
-  },
+  
   {
     path: '/connectors/:clientName',
     name: 'ConnectorList',
@@ -82,6 +79,17 @@ const routes = [
     path: '/volumetry/:clientName/:tableName/:ano/:mes/:dia/:hora/:minuto',
     name: 'VolumetryTableDetailsMesDiaHoraMinutosRows',
     component: VolumetryTableDetailsMesDiaHoraMinutesRows,
+    props: true
+  },
+  {
+    path: '/services',
+    name: 'ScheduledTaskIndex',
+    component: ScheduledTaskIndex
+  },
+  {
+    path: '/services/:id',
+    name: 'ScheduledTaskEdit',
+    component: ScheduledTaskEdit,
     props: true
   }
 ];

@@ -46,23 +46,14 @@ public class InitialDataLoader
                 {
                     Optional<ScheduledTaskEntity> existingTask = repository.findByServiceName(scheduledTask.getServiceName());
 
-                    ScheduledTaskEntity taskToSave;
-                    if (existingTask.isPresent())
+                    if (existingTask.isPresent() == false)
                     {
-                        taskToSave = existingTask.get();
-                        taskToSave.setCronExpression(scheduledTask.getCronExpression());
-                        taskToSave.setDescription(scheduledTask.getDescription());
-                    }
-                    else
-                    {
-                        taskToSave = scheduledTask;
-                    }
+                        logger.info("Cadastrando a Task: " + scheduledTask.getServiceName());
+                        repository.save(scheduledTask); // Criar o cadastro
 
-                    logger.info("Cadastrando a Task: " + taskToSave.getServiceName());
-                    repository.save(taskToSave); // Criar o cadastro
-
-                    logger.info("Agendando a Task no sistema: " + taskToSave.getServiceName());
-                    taskService.scheduleTask(taskToSave); // Agendar as tarefas
+                        logger.info("Agendando a Task no sistema: " + scheduledTask.getServiceName());
+                        taskService.scheduleTask(scheduledTask); // Agendar as tarefas
+                    }
                 }
             }
         };

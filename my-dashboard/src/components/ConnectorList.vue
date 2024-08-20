@@ -15,7 +15,9 @@
         {{ item.dataUltimoStatus | formatDate }}
       </template>
       <template v-slot:[`item.actions`]="{ item }">
-        <v-btn @click="viewDetails(item.id)">Detalhes</v-btn>
+        <v-btn icon @click="viewDetails(item.id)">
+          <v-icon>mdi-magnify</v-icon>
+        </v-btn>
       </template>
     </v-data-table>
   </div>
