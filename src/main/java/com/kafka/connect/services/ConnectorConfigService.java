@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kafka.connect.dto.ConnectorSummaryDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorStatusEntity;
+import com.kafka.connect.entity.NotificationLogEntity;
+import com.kafka.connect.entity.RecipientEntity;
 import com.kafka.connect.entity.TaskStatusEntity;
 import com.kafka.connect.model.ConnectorConfig;
 import com.kafka.connect.model.ConnectorStatus;
 import com.kafka.connect.model.ConnectorStatus.Task;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorStatusRepository;
+import com.kafka.connect.repository.NotificationLogRepository;
+import com.kafka.connect.repository.RecipientRepository;
 
 @Service
 public class ConnectorConfigService
@@ -30,6 +35,12 @@ public class ConnectorConfigService
 
     @Autowired
     private ConnectorStatusRepository connectorStatusRepository;
+
+    @Autowired
+    private NotificationLogRepository logRepository;
+
+    @Autowired
+    private RecipientRepository recipientRepository;
 
     @Autowired
     private KafkaConnectService kafkaConnectService;
@@ -73,10 +84,13 @@ public class ConnectorConfigService
     void getAndSaveConnectorConfig()
     {
         logger.info("Inicio - Atualizando conectores");
+        StringBuffer v_mensagemErro = new StringBuffer();
+        String v_assunto = "Erro ";
         try
         {
             // busca os conectores cadastrados no kafka
             List<String> connectors = kafkaConnectService.getConnectors();
+
             for (String v_connector : connectors)
             {
                 ConnectorConfigEntity connectorConfig;
@@ -121,24 +135,18 @@ public class ConnectorConfigService
                         taskEntities.add(taskEntity);
                     }
 
-                    /*      List<TaskStatusEntity> taskEntities1 = status.getTasks().stream().map(new Function<Task, TaskStatusEntity>()
-                    {
-                        public TaskStatusEntity apply(Task task)
-                        {
-                            TaskStatusEntity taskEntity = new TaskStatusEntity();
-                            taskEntity.setTaskId(task.getId());
-                            taskEntity.setTaskState(task.getState());
-                            taskEntity.setTaskWorkerId(task.getWorker_id());
-                            return taskEntity;
-                        }
-                    }).toList(); // Use collect(Collectors.toList()) para versões anteriores do Java
-                    */
                     statusEntity.setTasks(taskEntities);
 
                     // Verificar erros e salvar motivo
                     if (!"RUNNING".equalsIgnoreCase(status.getConnector().getState()))
                     {
                         statusEntity.setErrorReason("Conector não está em estado RUNNING");
+
+                        v_assunto += " com status da do conector " + connectorConfig.getName();
+                        v_mensagemErro.append("Conector: " + connectorConfig.getName());
+                        v_mensagemErro.append("Status Conector: " + status.getConnector().getState());
+                        v_mensagemErro.append("Erro: " + statusEntity.getErrorReason());
+
                     }
                     String v_statusTask = "";
                     for (ConnectorStatus.Task task : status.getTasks())
@@ -148,6 +156,11 @@ public class ConnectorConfigService
                         if (!"RUNNING".equalsIgnoreCase(task.getState()))
                         {
                             statusEntity.setErrorReason("Tarefa " + task.getId() + " do conector não está em estado RUNNING");
+
+                            v_assunto += " com status da task do conector " + connectorConfig.getName();
+                            v_mensagemErro.append("Conector: " + connectorConfig.getName());
+                            v_mensagemErro.append("Status Task: " + task.getState());
+                            v_mensagemErro.append("Erro: " + statusEntity.getErrorReason());
                         }
                     }
 
@@ -175,6 +188,8 @@ public class ConnectorConfigService
 
                     connectorConfig = repository.save(connectorConfig);
 
+                    this.createNotification(connectorConfig.getNomeCliente(), v_assunto, v_mensagemErro.toString());
+
                     // logger.info("Conector: " + connectorConfig.getName() + " - Atualizado com sucesso! ");
                 }
             }
@@ -186,7 +201,14 @@ public class ConnectorConfigService
         }
         catch (Exception e)
         {
-            // TODO: handle exception
+            v_mensagemErro.append("Não foi possivel obter o status, configurações dos conectores do Kafka." + e.getMessage());
+            e.printStackTrace();
+        }
+        finally
+        {
+            v_assunto += " kafka ";
+            this.createNotification("kafka", v_assunto, v_mensagemErro.toString());
+
         }
 
         logger.info("Fim da atualização dos conectores");
@@ -216,6 +238,28 @@ public class ConnectorConfigService
         {
             repository.deleteAllByNameIn(namesToDelete);
         }*/
+    }
+
+    private void createNotification(String p_nomeCliente, String p_assunto, String p_mensagem)
+    {
+        if (p_mensagem != null && p_mensagem.length() > 0)
+        {
+
+            // criando a notificacao
+            NotificationLogEntity v_notificationLog = new NotificationLogEntity();
+            v_notificationLog.setRecipient(this.getEmailsAsCommaSeparatedString());
+            v_notificationLog.setSubject(p_assunto);
+            v_notificationLog.setMessage(p_mensagem);
+            v_notificationLog.setNomeCliente(p_nomeCliente);
+
+            logRepository.save(v_notificationLog);
+        }
+    }
+
+    public String getEmailsAsCommaSeparatedString()
+    {
+        List<RecipientEntity> v_recipients = recipientRepository.findByIsActiveTrue();
+        return v_recipients.stream().map(RecipientEntity::getEmail).collect(Collectors.joining(","));
     }
 
 }

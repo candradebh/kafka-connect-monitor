@@ -41,6 +41,8 @@ public class InitialDataLoader
                     "Executa à meia-noite todos os dias e consulta a volumetria do source e do sink"));
                 scheduledTasks.add(new ScheduledTaskEntity(null, "KafkaConnectorStatusService", "0 */10 * * * ?",
                     "Executa todos os dias de 10 em 10 minutos monitorando o status dos conectores kafka"));
+                scheduledTasks
+                    .add(new ScheduledTaskEntity(null, "NotificationService", "0 */10 * * * ?", "Envia notificações de 10 em 10 minutos caso seja necessário"));
 
                 for (ScheduledTaskEntity scheduledTask : scheduledTasks)
                 {

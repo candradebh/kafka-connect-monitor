@@ -15,6 +15,8 @@ import ScheduledTaskIndex from '@/components/scheduledTasks/ScheduledTaskIndex.v
 import ScheduledTaskEdit from '@/components/scheduledTasks/ScheduledTaskEdit.vue';
 import TableMetadataIndex from '@/components/tablemetadata/TableMetadataIndex.vue';
 import TableMetadataEdit from '@/components/tablemetadata/TableMetadataEdit.vue';
+import NotificationRecipientIndex from '@/components/recipients/NotificationRecipientIndex.vue';
+import NotificationLogIndex from '@/components/notifications/NotificationLogIndex.vue';
 
 Vue.use(Router);
 
@@ -104,7 +106,18 @@ const routes = [
     name: 'TableMetadataEdit',
     component: TableMetadataEdit,
     props: true
+  },
+  {
+    path: '/recipients',
+    name: 'NotificationRecipientIndex',
+    component: NotificationRecipientIndex
+  },
+  {
+    path: '/notificationlogs',
+    name: 'NotificationLogIndex',
+    component: NotificationLogIndex
   }
+  
 ];
 
 const router = new Router({

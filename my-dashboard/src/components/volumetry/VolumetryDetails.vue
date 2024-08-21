@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import PopupQueries from '@/components/PopUpQueries.vue'; // Importe o componente PopupQueries
+import PopupQueries from '@/components/PopUpQueries.vue'; 
 
 export default {
   name: 'VolumetryDetails',
@@ -55,10 +55,10 @@ export default {
   },
   computed: {
     okCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres === volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.status !== 'ERRO').length;
     },
     errorCount() {
-      return this.volumetries.filter(volumetry => volumetry.postgres !== volumetry.bigquery).length;
+      return this.volumetries.filter(volumetry => volumetry.status === 'ERRO').length;
     }
   },
   mounted() {

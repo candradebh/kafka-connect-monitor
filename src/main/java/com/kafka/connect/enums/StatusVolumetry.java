@@ -1,4 +1,4 @@
-package com.kafka.connect.entity;
+package com.kafka.connect.enums;
 
 public enum StatusVolumetry
 {

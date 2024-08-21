@@ -15,7 +15,6 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.stereotype.Service;
 import com.kafka.connect.entity.ScheduledTaskEntity;
 import com.kafka.connect.repository.ScheduledTaskRepository;
-import com.kafka.connect.util.SchedulableTask;
 
 @Service
 public class DynamicScheduledTaskService

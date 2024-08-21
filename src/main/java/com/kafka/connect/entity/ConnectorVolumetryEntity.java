@@ -51,4 +51,8 @@ public class ConnectorVolumetryEntity
     @JoinColumn(name = "soucerconnector_id", nullable = false)
     private ConnectorConfigEntity sourceConnector;
 
+    @ManyToOne
+    @JoinColumn(name = "notificationlog_id", nullable = true)
+    private NotificationLogEntity notificationLog;
+
 }

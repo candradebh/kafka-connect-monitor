@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kafka.connect.datasources.BigQueryConnection;
 import com.kafka.connect.entity.VolumetryRowsEntity;
 import com.kafka.connect.repository.VolumetryRowsRepository;
-import com.kafka.connect.util.SchedulableTask;
 
 /**
  * Servico que apaga os registro na bigquery automaticamente quando ele existir na bigquery e não existir no postgres.

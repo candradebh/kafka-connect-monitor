@@ -1,4 +1,4 @@
-package com.kafka.connect.util;
+package com.kafka.connect.services;
 
 public interface SchedulableTask
 {

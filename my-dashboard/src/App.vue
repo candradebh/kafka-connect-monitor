@@ -50,6 +50,8 @@ export default {
       { title: 'Volumetria', path: '/volumetry' },
       { title: 'Serviços', path: '/services' },
       { title: 'Tabelas', path: '/tables' },
+      { title: 'Destinatários', path: '/recipients' },
+      { title: 'Log Notificação', path: '/notificationlogs' },
     ],
   }),
 };

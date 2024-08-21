@@ -3,7 +3,6 @@ package com.kafka.connect.services;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.kafka.connect.util.SchedulableTask;
 
 @Service("KafkaConnectorStatusService")
 public class KafkaConnectorStatusService implements SchedulableTask

@@ -3,12 +3,15 @@ package com.kafka.connect.services;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,22 +21,25 @@ import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
-import com.kafka.connect.entity.StatusVolumetry;
+import com.kafka.connect.entity.NotificationLogEntity;
+import com.kafka.connect.entity.RecipientEntity;
 import com.kafka.connect.entity.TableMetadataEntity;
 import com.kafka.connect.entity.VolumetryDayEntity;
 import com.kafka.connect.entity.VolumetryHourEntity;
 import com.kafka.connect.entity.VolumetryMonthDayEntity;
 import com.kafka.connect.entity.VolumetryRowsEntity;
 import com.kafka.connect.entity.VolumetryYearEntity;
+import com.kafka.connect.enums.StatusVolumetry;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorVolumetryRepository;
+import com.kafka.connect.repository.NotificationLogRepository;
+import com.kafka.connect.repository.RecipientRepository;
 import com.kafka.connect.repository.TableMetadataRepository;
 import com.kafka.connect.repository.VolumetryDayRepository;
 import com.kafka.connect.repository.VolumetryHourRepository;
 import com.kafka.connect.repository.VolumetryMonthRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 import com.kafka.connect.repository.VolumetryYearRepository;
-import com.kafka.connect.util.SchedulableTask;
 
 @Service("DataMonitoringService")
 public class DataMonitoringService implements SchedulableTask
@@ -69,10 +75,22 @@ public class DataMonitoringService implements SchedulableTask
     private TableMetadataRepository tableMetadaRepository;
 
     @Autowired
+    private RecipientRepository recipientRepository;
+
+    @Autowired
+    private NotificationLogRepository logRepository;
+
+    @Autowired
     private ConnectorConfigService connectorConfigService;
 
     @Autowired
     private BigQueryConnection bigqueryService;
+
+    @Override
+    public void execute()
+    {
+        this.dataMonitor();
+    }
 
     @Transactional
     public void dataMonitor()
@@ -97,6 +115,7 @@ public class DataMonitoringService implements SchedulableTask
 
         for (ConnectorConfigEntity connector : listaConnectors)
         {
+            // conecta ao Postgres
             v_databaseConnectionJdbc = new DatabaseConnectionJdbc(connector);
 
             if (connector.getTableIncludeList() != null && connector.getTableIncludeList().isEmpty() == false)
@@ -109,6 +128,10 @@ public class DataMonitoringService implements SchedulableTask
                 if (v_optionalSinkCliente.isPresent())
                 {
                     ConnectorConfigEntity v_sinkCliente = v_optionalSinkCliente.get();
+
+                    // mensagem ao final de notificacao
+                    HashMap<String, Integer> v_hashStatusCount = new HashMap<String, Integer>();
+                    List<ConnectorVolumetryEntity> v_listVolumetryError = new ArrayList<ConnectorVolumetryEntity>();
 
                     for (final String v_table : v_tableList)
                     {
@@ -127,13 +150,15 @@ public class DataMonitoringService implements SchedulableTask
                         v_volumetry.setDifference(v_volumetry.getPostgres() - v_volumetry.getBigquery());
                         v_volumetry.setStatus(this.calcularStatus(v_volumetry.getDifference()));
 
+                        this.updateCount(v_hashStatusCount, v_volumetry);
+
                         connectorVolumetryRepository.save(v_volumetry);
 
-                        // Garantir que as mudanças sejam aplicadas
-                        // entityManager.flush();
-
-                        // Commit das alterações antes de continuar
-                        // this.commitTransaction();
+                        // lista com erro para criar notificacao
+                        if (v_volumetry.getStatus().equals(StatusVolumetry.ERRO.name()))
+                        {
+                            v_listVolumetryError.add(v_volumetry);
+                        }
 
                         logger.info("Atualizado a volumetria[Nivel 1]: Cliente(" + connector.getNomeCliente() + "), connector(" + connector.getName()
                             + "), tabela(" + v_table + ")");
@@ -141,6 +166,13 @@ public class DataMonitoringService implements SchedulableTask
                         this.atualizacaoVolumetriaAno(v_databaseConnectionJdbc, connector, v_tableEntity, v_volumetry, v_nomeTabelaBigQuery);
 
                     }
+
+                    // criar notificacao
+                    if (v_hashStatusCount.get(StatusVolumetry.ERRO.name()).intValue() > 0)
+                    {
+                        this.createNotification(connector.getNomeCliente(), v_listVolumetryError);
+                    }
+
                 }
             }
             else
@@ -150,6 +182,11 @@ public class DataMonitoringService implements SchedulableTask
             }
             v_databaseConnectionJdbc.close();
         }
+    }
+
+    private void updateCount(HashMap<String, Integer> v_hashStatusCount, ConnectorVolumetryEntity connectorVolumetryEntity)
+    {
+        v_hashStatusCount.put(connectorVolumetryEntity.getStatus(), v_hashStatusCount.getOrDefault(connectorVolumetryEntity.getStatus(), 0) + 1);
     }
 
     private String calcularStatus(long v_diff)
@@ -305,6 +342,7 @@ public class DataMonitoringService implements SchedulableTask
 
         ConnectorVolumetryEntity v_volumetry = v_volumetrias.stream().filter(new Predicate<ConnectorVolumetryEntity>()
         {
+            @Override
             public boolean test(ConnectorVolumetryEntity vol)
             {
                 return vol != null && vol.getTabela().equals(p_table);
@@ -611,8 +649,49 @@ public class DataMonitoringService implements SchedulableTask
         return v_tableMetaData;
     }
 
-    public void execute()
+    private void createNotification(String p_nomeCliente, List<ConnectorVolumetryEntity> v_listVolumetryError)
     {
-        this.dataMonitor();
+        StringBuffer htmlMsg = new StringBuffer();
+        String v_assunto = "Divergências na Volumetria dos dados (Postgres x BigQuery) para o cliente " + p_nomeCliente;
+
+        htmlMsg.append("<h3>" + v_assunto + "</h3>");
+        htmlMsg.append("<table border='1' cellpadding='5' cellspacing='0'>");
+        htmlMsg.append("<tr>")//
+            .append("<th>Nome da Tabela</th>")//
+            .append("<th>Data da Busca</th>")//
+            .append("<th>Total no Postgres</th>")//
+            .append("<th>Total no BigQuery</th>")//
+            .append("<th>Diferença</th>")//
+            .append("<th>Status</th>")//
+            .append("</tr>");
+
+        for (ConnectorVolumetryEntity v_volumetryError : v_listVolumetryError)
+        {
+            htmlMsg.append("<tr>")//
+                .append("<td>").append(v_volumetryError.getTabela()).append("</td>")//
+                .append("<td>").append(v_volumetryError.getDataBusca()).append("</td>")//
+                .append("<td>").append(v_volumetryError.getPostgres()).append("</td>")//
+                .append("<td>").append(v_volumetryError.getBigquery()).append("</td>")//
+                .append("<td>").append(v_volumetryError.getDifference()).append("</td>")//
+                .append("<td>").append(v_volumetryError.getStatus()).append("</td>")//
+                .append("</tr>");
+
+        }
+
+        // criando a notificacao
+        NotificationLogEntity v_notificationLog = new NotificationLogEntity();
+        v_notificationLog.setRecipient(this.getEmailsAsCommaSeparatedString());
+        v_notificationLog.setSubject(v_assunto);
+        v_notificationLog.setMessage(htmlMsg.toString());
+        v_notificationLog.setNomeCliente(p_nomeCliente);
+
+        logRepository.save(v_notificationLog);
     }
+
+    public String getEmailsAsCommaSeparatedString()
+    {
+        List<RecipientEntity> v_recipients = recipientRepository.findByIsActiveTrue();
+        return v_recipients.stream().map(RecipientEntity::getEmail).collect(Collectors.joining(","));
+    }
+
 }
