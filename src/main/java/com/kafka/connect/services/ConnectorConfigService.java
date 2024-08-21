@@ -30,6 +30,8 @@ public class ConnectorConfigService
 
     private static final Logger logger = Logger.getLogger(KafkaConnectorStatusService.class.getName());
 
+    private static final String m_kafka = "kafka";
+
     @Autowired
     private ConnectorConfigRepository repository;
 
@@ -206,8 +208,8 @@ public class ConnectorConfigService
         }
         finally
         {
-            v_assunto += " kafka ";
-            this.createNotification("kafka", v_assunto, v_mensagemErro.toString());
+            v_assunto += m_kafka;
+            this.createNotification(m_kafka, v_assunto, v_mensagemErro.toString());
 
         }
 
@@ -242,7 +244,7 @@ public class ConnectorConfigService
 
     private void createNotification(String p_nomeCliente, String p_assunto, String p_mensagem)
     {
-        if (p_mensagem != null && p_mensagem.length() > 0)
+        if (p_nomeCliente.equals(m_kafka) == false && p_mensagem != null && p_mensagem.length() > 0)
         {
 
             // criando a notificacao
