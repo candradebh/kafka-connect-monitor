@@ -244,7 +244,8 @@ public class ConnectorConfigService
 
     private void createNotification(String p_nomeCliente, String p_assunto, String p_mensagem)
     {
-        if (p_nomeCliente.equals(m_kafka) == false && p_mensagem != null && p_mensagem.length() > 0)
+        // p_nomeCliente.equals(m_kafka) == false &&
+        if (p_mensagem != null && p_mensagem.length() > 0)
         {
 
             // criando a notificacao

@@ -42,6 +42,7 @@ public class NotificationLogEntity
 
     private String nomeCliente;
 
+    @Column(nullable = true, columnDefinition = "TEXT")
     private String errorMessage; // Para armazenar mensagens de erro
 
     private LocalDateTime dataCriacao = LocalDateTime.now();
