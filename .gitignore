@@ -32,6 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
+#configs
+src/main/resources/application.properties
 
 ## credentials ##
 src/main/resources/credentials/
@@ -44,6 +46,9 @@ data/kafka.mv.db
 /my-dashboard/node/
 /my-dashboard/node/node.exe
 /my-dashboard/node_modules/
+
+
+
 
 
 
