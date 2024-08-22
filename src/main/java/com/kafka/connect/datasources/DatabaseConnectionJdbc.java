@@ -311,4 +311,38 @@ public class DatabaseConnectionJdbc
         }
     }
 
+    public List<Long> getOids(String p_key, String p_tabela)
+    {
+        List<Long> v_listaLong = new ArrayList<Long>();
+
+        if (p_tabela != null && p_tabela.isEmpty() == false)
+        {
+
+            try
+            {
+                String v_sql = "SELECT " + p_key + " FROM " + p_tabela;
+
+                stmt = conn.createStatement();
+
+                rs = stmt.executeQuery(v_sql);
+
+                while (rs.next())
+                {
+                    long v_oid = rs.getLong(p_key);
+                    if (v_listaLong.contains(v_oid) == false)
+                    {
+                        v_listaLong.add(v_oid);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return v_listaLong;
+
+    }
+
 }

@@ -5,7 +5,7 @@
                 <v-toolbar flat>
                     <v-toolbar-title>Destinatarios</v-toolbar-title>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="openForm(null)">Add Recipient</v-btn>
+                    <v-btn color="primary" @click="openForm(null)">Criar</v-btn>
                 </v-toolbar>
             </template>
 

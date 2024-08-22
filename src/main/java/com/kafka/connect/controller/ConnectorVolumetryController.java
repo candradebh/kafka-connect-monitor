@@ -133,6 +133,7 @@ public class ConnectorVolumetryController
 
             volumetry.setDataDeletado(new Date());
             volumetry.setDeletado(true);
+
             volumetryRowsRepository.save(volumetry);
         }
         catch (Exception e)

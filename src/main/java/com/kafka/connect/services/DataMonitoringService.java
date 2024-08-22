@@ -54,6 +54,9 @@ public class DataMonitoringService implements SchedulableTask
     private ConnectorConfigRepository connectorConfigRepository;
 
     @Autowired
+    private ConnectorVolumetryRepository connectorVolumetryRepository;
+
+    @Autowired
     private VolumetryYearRepository volumetryYearRepository;
 
     @Autowired
@@ -67,9 +70,6 @@ public class DataMonitoringService implements SchedulableTask
 
     @Autowired
     private VolumetryRowsRepository volumetryRowsRepository;
-
-    @Autowired
-    private ConnectorVolumetryRepository connectorVolumetryRepository;
 
     @Autowired
     private TableMetadataRepository tableMetadaRepository;
@@ -168,7 +168,8 @@ public class DataMonitoringService implements SchedulableTask
                     }
 
                     // criar notificacao
-                    if (v_hashStatusCount.get(StatusVolumetry.ERRO.name()).intValue() > 0)
+                    if (v_hashStatusCount != null && v_hashStatusCount.containsKey(StatusVolumetry.ERRO.name())
+                        && v_hashStatusCount.get(StatusVolumetry.ERRO.name()).intValue() > 0)
                     {
                         this.createNotification(connector.getNomeCliente(), v_listVolumetryError);
                     }
@@ -351,10 +352,11 @@ public class DataMonitoringService implements SchedulableTask
 
         v_volumetry.setSourceName(connector.getName());
         v_volumetry.setSinkName(v_sinkCliente.getName());
-
+        v_volumetry.setSinkConnector(v_sinkCliente);
         v_volumetry.setNomeCliente(connector.getNomeCliente());
 
         v_volumetry.setSourceConnector(connector);
+
         v_volumetry.setDataBusca(new Date());
         v_volumetry.setTabela(p_table);
 

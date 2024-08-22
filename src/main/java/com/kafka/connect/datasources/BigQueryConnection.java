@@ -47,6 +47,45 @@ public class BigQueryConnection
         return v_result;
     }
 
+    public List<Long> getOids(String p_key, String p_tabela, String p_clienteNome)
+    {
+
+        List<Long> v_listaLong = new ArrayList<Long>();
+
+        if (p_tabela != null && p_tabela.isEmpty() == false)
+        {
+
+            try
+            {
+                String v_sql = "SELECT " + p_key + " FROM " + p_tabela;
+
+                TableResult v_resultado = this.executeQuery(p_clienteNome + ".json", v_sql);
+
+                if (v_resultado != null)
+                {
+
+                    for (FieldValueList row : v_resultado.iterateAll())
+                    {
+
+                        Long v_oid = row.get(p_key).getLongValue();
+
+                        if (v_listaLong.contains(v_oid) == false)
+                        {
+                            v_listaLong.add(v_oid);
+                        }
+
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        return v_listaLong;
+    }
+
     public List<DataAnaliseYearDTO> getDataAnaliseYear(String filename, String p_tabela, String p_nomeCliente, String p_nomeColunaData)
     {
 

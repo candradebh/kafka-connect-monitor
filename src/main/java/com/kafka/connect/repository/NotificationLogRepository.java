@@ -13,6 +13,8 @@ public interface NotificationLogRepository extends JpaRepository<NotificationLog
 
     List<NotificationLogEntity> findByFoiEnviadoFalseAndTemErroFalse();
 
+    List<NotificationLogEntity> findByFoiEnviadoFalse();
+
     List<NotificationLogEntity> findByTemErroTrue();
 
     @Override

@@ -1,7 +1,7 @@
 <template>
     <v-card>
       <v-card-title>
-        <span class="text-h5">{{ recipient ? 'Editar' : 'Adicionar' }} Recipient</span>
+        <span class="text-h5">{{ recipient ? 'Editar' : 'Adicionar' }} destinatário</span>
       </v-card-title>
   
       <v-card-text>
@@ -14,8 +14,8 @@
   
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="$emit('close')">Cancel</v-btn>
-        <v-btn color="blue darken-1" text @click="saveRecipient">Save</v-btn>
+        <v-btn color="blue darken-1" text @click="$emit('close')">Cancelar</v-btn>
+        <v-btn color="blue darken-1" text @click="saveRecipient">Salvar</v-btn>
       </v-card-actions>
     </v-card>
   </template>

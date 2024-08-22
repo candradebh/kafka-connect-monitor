@@ -48,6 +48,7 @@
           { text: 'Cliente', value: 'nomeCliente' },
           { text: 'Destinatários', value: 'recipient' },
           { text: 'Assunto', value: 'subject' },
+          { text: 'Mensagem', value: 'message' },
           { text: 'Data Criação', value: 'dataCriacao' },
           { text: 'Enviado', value: 'foiEnviado' },
           { text: 'Tem Erro', value: 'temErro' },
