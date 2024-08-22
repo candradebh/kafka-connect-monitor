@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,9 +13,10 @@ import com.kafka.connect.datasources.BigQueryConnection;
 import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
+import com.kafka.connect.entity.TableMetadataEntity;
 import com.kafka.connect.entity.VolumetryRowsEntity;
-import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorVolumetryRepository;
+import com.kafka.connect.repository.TableMetadataRepository;
 import com.kafka.connect.repository.VolumetryRowsRepository;
 
 /**
@@ -27,7 +29,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
     private static final Logger logger = Logger.getLogger(KafkaConnectorStatusService.class.getName());
 
     @Autowired
-    private ConnectorConfigRepository connectorConfigRepository;
+    private TableMetadataRepository tableMetadataRepository;
 
     @Autowired
     private VolumetryRowsRepository volumetryRowsRepository;
@@ -41,15 +43,34 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
     @Override
     public void execute()
     {
-        // deleta as linhas que sao
+        // deleta as linhas no bigquery que foram calculadas quando a tabela possui coluna de data
         this.deleteRowsInBigquery();
 
-        // quando a tabela não tem data mas pode serr resolvida quando o numero total de registros é viavel
+        // deleta as linhas no bigquery que foram calculadas quando a tabela não possui coluna de data
+        this.deleteRrowsWithoutColumData();
+    }
+
+    /**
+     * Deleta as linhas no bigquery deixando o total de registos iguais para quando a tabela nao tem coluna de data
+     * <p>
+     * Esse metodo vai listar todos os registros de um lado e de outro e ajustando
+     * </p>
+     */
+    @Transactional
+    private void deleteRrowsWithoutColumData()
+    {
         List<ConnectorVolumetryEntity> v_listaVolumetryConnector = connectorVolumetryRepository.findAll();
         for (ConnectorVolumetryEntity connectorVolumetryEntity : v_listaVolumetryConnector)
         {
-            // tem mais registro na bigquery e é viavel iterar sobre todos para achar os erados
-            if (connectorVolumetryEntity.getDifference() < 0)
+            Optional<TableMetadataEntity> v_tabelMetadataOpt = tableMetadataRepository.findByTableName(connectorVolumetryEntity.getTabela());
+            TableMetadataEntity v_tableMetadata = null;
+            if (v_tabelMetadataOpt.isPresent())
+            {
+                v_tableMetadata = v_tabelMetadataOpt.get();
+            }
+            // tem mais registro na bigquery e é viavel iterar sobre todos para achar os errados se a ultima execucao de datamonitoring tiver
+            if (connectorVolumetryEntity.getDifference() < 0 && v_tableMetadata != null && v_tableMetadata.isVolumetryData() == true
+                && v_tableMetadata.getDateColumnName().isEmpty())
             {
                 // obter os registros do postgres
                 DatabaseConnectionJdbc v_databaseConnectionJdbc = new DatabaseConnectionJdbc(connectorVolumetryEntity.getSourceConnector());
