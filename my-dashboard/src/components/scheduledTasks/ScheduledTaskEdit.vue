@@ -14,14 +14,14 @@
                   :rules="[rules.required]"
                   required
                 ></v-text-field>
-  
+                
                 <v-text-field
                   label="Expressão Cron"
                   v-model="service.cronExpression"
                   :rules="[rules.required]"
                   required
                 ></v-text-field>
-  
+                <v-checkbox v-model="service.active" label="Ativo"></v-checkbox>
                 <v-textarea
                   label="Descrição"
                   v-model="service.description"

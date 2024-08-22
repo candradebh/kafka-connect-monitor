@@ -5,18 +5,42 @@
 3 - Configure o sistema com o ip do kafka no arquivo application.properties em spring.kafka.bootstrap-servers e kafka.connect.url
 
 
-# Executando
-`mvn clean install`
-`mvn spring-boot:run`
+# Publicar no servidor
+Essa aplicação vai rodar em uma maquina linux
 
-## Gerando jar
+## Gerando jar 
 `mvn clean package`
 
+## Copiar arquivos
+1 - Copiar o jar `connect-0.0.1-SNAPSHOT.jar` para a pasta `/var/lib/kafka-monitor`
+2 - Copiar o shell script `/scripts/kafkamonitor.sh` para mesma pasta do JAR `/var/lib/kafka-monitor` e torná-lo executável `chmod +x kafkamonitor.sh`
+3 - Criar o servico do linux `sudo vi /etc/systemd/system/kafka-monitor.service` e copie o conteudo abaixo:
+
+```
+[Unit]
+Description=Kafka monitor
+Documentation=https://github.com/candradebh/kafka-connect-monitor
+After=syslog.target
+After=network.target
+
+[Service]
+ExecStart=/var/lib/kafka-monitor/kafkamonitor.sh start
+ExecStop=/var/lib/kafka-monitor/kafkamonitor.sh stop
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+4 - Cadastre e recarregue os serviços:
+`sudo systemctl daemon-reload`
+`sudo systemctl start kafka-monitor`
+
+5 - Habilite o servico para iniciar com o computador `sudo systemctl enable kafka-monitor`
+
+6 - verificar os logs `sudo journalctl -u myapp` 
 
 
-
-# Evolução
-- Com a busca de volumetria por tabela por ano, mes, dia, hora e minutos para identificar erros de volumetria e apagá-los no banco de destino até que se ajuste esse problema, conseguimos identificar uma analise importante que pode ser desenvolvida, como a analise do comportamento dos dados, podemos identificar em qual momento do dia acontecem picos de INSERT no banco para uma tabela. (A IDEIA EH BOA MAS PESQUISAR POR DIA > HORA > MINUTOS EXIGE MUITO TEMPO PARA A ATUALIZAÇAO, FOQUE NO OBJETIVO E TRATE SEU TDAH)
 
 
 

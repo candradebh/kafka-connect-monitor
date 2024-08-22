@@ -23,6 +23,7 @@ export default {
       headers: [
         { text: 'Nome', value: 'serviceName' },
         { text: 'Cron', value: 'cronExpression' },
+        { text: 'Ativo', value: 'active' },
         { text: 'Ultima Execução', value: 'lastExecutionTime' },
         { text: 'Descrição', value: 'description' },
       ],

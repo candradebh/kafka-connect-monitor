@@ -38,7 +38,7 @@ public class DynamicScheduledTaskService
     {
         try
         {
-            List<ScheduledTaskEntity> tasks = scheduledTaskRepository.findAll();
+            List<ScheduledTaskEntity> tasks = scheduledTaskRepository.findByIsActiveTrue();
             for (ScheduledTaskEntity task : tasks)
             {
                 this.scheduleTask(task);
@@ -47,7 +47,7 @@ public class DynamicScheduledTaskService
         catch (Exception e)
         {
             e.printStackTrace();
-            throw new RuntimeException("Failed to initialize scheduled tasks", e);
+            throw new RuntimeException("Falha ao inicializar scheduled tasks", e);
         }
     }
 
@@ -55,14 +55,25 @@ public class DynamicScheduledTaskService
     {
         Runnable task = new Runnable()
         {
+            @Override
             public void run()
             {
-                logger.info("Inicio da execução do serviço agendado: " + taskEntity.getServiceName());
-                SchedulableTask schedulableTask = (SchedulableTask) applicationContext.getBean(taskEntity.getServiceName());
-                schedulableTask.execute();
-                taskEntity.setLastExecutionTime(LocalDateTime.now());
-                scheduledTaskRepository.save(taskEntity);
-                logger.info("Fim da execução do serviço agendado: " + taskEntity.getServiceName() + " em " + taskEntity.getLastExecutionTime());
+                // Verificar se a tarefa ainda está ativa antes de executar
+                Optional<ScheduledTaskEntity> updatedTaskEntityOpt = scheduledTaskRepository.findById(taskEntity.getId());
+                if (updatedTaskEntityOpt.isPresent() && updatedTaskEntityOpt.get().isActive())
+                {
+                    logger.info("Início da execução do serviço agendado: " + taskEntity.getServiceName());
+                    SchedulableTask schedulableTask = (SchedulableTask) applicationContext.getBean(taskEntity.getServiceName());
+                    schedulableTask.execute();
+                    taskEntity.setLastExecutionTime(LocalDateTime.now());
+                    scheduledTaskRepository.save(taskEntity);
+                    logger.info("Fim da execução do serviço agendado: " + taskEntity.getServiceName() + " em " + taskEntity.getLastExecutionTime());
+                }
+                else
+                {
+                    logger.info("Serviço agendado cancelado: " + taskEntity.getServiceName() + " porque não está mais ativo.");
+                    DynamicScheduledTaskService.this.cancelTask(taskEntity.getServiceName());
+                }
             }
         };
         ScheduledFuture<?> future = taskScheduler.schedule(task, new CronTrigger(taskEntity.getCronExpression()));
@@ -77,6 +88,7 @@ public class DynamicScheduledTaskService
 
     public void cancelTask(String serviceName)
     {
+
         ScheduledFuture<?> future = scheduledTasks.get(serviceName);
         if (future != null)
         {
@@ -101,6 +113,7 @@ public class DynamicScheduledTaskService
     {
         return new Runnable()
         {
+            @Override
             public void run()
             {
                 DynamicScheduledTaskService.this.executeTask(serviceName);

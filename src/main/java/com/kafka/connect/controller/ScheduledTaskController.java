@@ -52,8 +52,19 @@ public class ScheduledTaskController
             updatedTask.setServiceName(taskEntity.getServiceName());
             updatedTask.setCronExpression(taskEntity.getCronExpression());
             updatedTask.setDescription(taskEntity.getDescription());
+            updatedTask.setActive(taskEntity.isActive());
             scheduledTaskRepository.save(updatedTask);
-            dynamicScheduledTaskService.rescheduleTask(updatedTask);
+
+            if (updatedTask.isActive())
+            {
+
+                dynamicScheduledTaskService.rescheduleTask(updatedTask);
+            }
+            else
+            {
+                dynamicScheduledTaskService.cancelTask(updatedTask.getServiceName());
+            }
+
             return ResponseEntity.ok(updatedTask);
         }
         else

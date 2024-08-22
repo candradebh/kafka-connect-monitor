@@ -29,6 +29,7 @@ public class InitialDataLoader
     {
         return new CommandLineRunner()
         {
+            @Override
             public void run(String... args) throws Exception
             {
 
@@ -36,13 +37,13 @@ public class InitialDataLoader
 
                 // Criar e salvar tarefas iniciais
                 scheduledTasks
-                    .add(new ScheduledTaskEntity(null, "VolumetryDeleteRowsBigqueryService", "0 0 1 * * ?", "Executa todos os dias à 1 hora da manhã"));
+                    .add(new ScheduledTaskEntity(null, "VolumetryDeleteRowsBigqueryService", "0 0 1 * * ?", "Executa todos os dias à 1 hora da manhã", true));
                 scheduledTasks.add(new ScheduledTaskEntity(null, "DataMonitoringService", "0 20 21 * * ?",
-                    "Executa à meia-noite todos os dias e consulta a volumetria do source e do sink"));
+                    "Executa à meia-noite todos os dias e consulta a volumetria do source e do sink", true));
                 scheduledTasks.add(new ScheduledTaskEntity(null, "KafkaConnectorStatusService", "0 */10 * * * ?",
-                    "Executa todos os dias de 10 em 10 minutos monitorando o status dos conectores kafka"));
-                scheduledTasks
-                    .add(new ScheduledTaskEntity(null, "NotificationService", "0 */10 * * * ?", "Envia notificações de 10 em 10 minutos caso seja necessário"));
+                    "Executa todos os dias de 10 em 10 minutos monitorando o status dos conectores kafka", true));
+                scheduledTasks.add(new ScheduledTaskEntity(null, "NotificationService", "0 */10 * * * ?",
+                    "Envia notificações de 10 em 10 minutos caso seja necessário", true));
 
                 for (ScheduledTaskEntity scheduledTask : scheduledTasks)
                 {
