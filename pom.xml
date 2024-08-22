@@ -83,80 +83,80 @@
 	</dependencies>
 
 	<build>
-    <plugins>
-    
-    
-        <!-- Plugin para construir o frontend Vue.js -->
-        <plugin>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>1.12.0</version>
-            <executions>
-                <execution>
-                    <id>npm install</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
-                        <npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
-                    </configuration>
-                </execution>
-                <execution>
-                    <id>npm run build</id>
-                    <goals>
-                        <goal>npm</goal>
-                    </goals>
-                    <configuration>
-                        <arguments>run build</arguments>
-                        <workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
-                        <npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+		<finalName>monitor-kafka</finalName>
+		<plugins>
+			<!-- Plugin para construir o frontend Vue.js -->
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.12.0</version>
+				<executions>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
+							<npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm run build</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>run build</arguments>
+							<workingDirectory>${project.basedir}/my-dashboard</workingDirectory>
+							<npmInheritsProxyConfigFromMaven>true</npmInheritsProxyConfigFromMaven>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-        <!-- Plugin para copiar os arquivos do frontend para o diretório estático do Spring Boot -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-resources-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-                <execution>
-                    <id>copy-resources</id>
-                    <phase>prepare-package</phase>
-                    <goals>
-                        <goal>copy-resources</goal>
-                    </goals>
-                    <configuration>
-                        <outputDirectory>${project.build.directory}/classes/static</outputDirectory>
-                        <resources>
-                            <resource>
-                                <directory>${project.basedir}/my-dashboard/dist</directory>
-                                <includes>
-                                    <include>**/*</include>
-                                </includes>
-                            </resource>
-                        </resources>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
+			<!-- Plugin para copiar os arquivos do frontend para o diretório estático 
+				do Spring Boot -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/classes/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/my-dashboard/dist</directory>
+									<includes>
+										<include>**/*</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 
-        <!-- Plugin para empacotar o Spring Boot em um JAR -->
-        <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>repackage</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
+			<!-- Plugin para empacotar o Spring Boot em um JAR -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 
 </project>

@@ -71,6 +71,7 @@ public class TableMetadataService
             {
                 TableMetadataEntity recordToUpdate = existingRecord.get();
                 recordToUpdate.setDateColumnName(data.getDateColumnName());
+                recordToUpdate.setVolumetryData(data.isVolumetryData());
                 repository.save(recordToUpdate);
             }
             else
