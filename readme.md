@@ -11,6 +11,9 @@ Essa aplicação vai rodar em uma maquina linux
 ## Gerando jar 
 `mvn clean package`
 
+### Executando o jar
+`java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar monitor-kafka.jar`
+
 ## Copiar arquivos
 1 - Copiar o jar `monitor-kafka.jar` para a pasta `/var/lib/kafka-monitor` <br>
 2 - Criar o servico do linux `sudo vi /etc/systemd/system/kafka-monitor.service` e copie o conteudo abaixo: <br>

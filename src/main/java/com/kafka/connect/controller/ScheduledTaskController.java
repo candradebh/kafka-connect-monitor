@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,14 +56,18 @@ public class ScheduledTaskController
         Optional<ScheduledTaskEntity> existingTask = scheduledTaskRepository.findById(id);
         if (existingTask.isPresent())
         {
-            ScheduledTaskEntity updatedTask = existingTask.get();
-            updatedTask.setServiceName(taskEntity.getServiceName());
-            updatedTask.setCronExpression(taskEntity.getCronExpression());
-            updatedTask.setDescription(taskEntity.getDescription());
-            updatedTask.setActive(taskEntity.isActive());
 
             try
             {
+                ScheduledTaskEntity updatedTask = existingTask.get();
+                updatedTask.setServiceName(taskEntity.getServiceName());
+                updatedTask.setDescription(taskEntity.getDescription());
+                updatedTask.setActive(taskEntity.isActive());
+
+                // garante o cadastro correto
+                CronTrigger v_cron = new CronTrigger(taskEntity.getCronExpression());
+                updatedTask.setCronExpression(v_cron.getExpression());
+
                 if (updatedTask.isActive())
                 {
 
@@ -72,15 +77,16 @@ public class ScheduledTaskController
                 {
                     dynamicScheduledTaskService.cancelTask(updatedTask.getServiceName());
                 }
+                scheduledTaskRepository.save(updatedTask);
+
+                return ResponseEntity.ok(updatedTask);
             }
             catch (Exception e)
             {
+
                 return ResponseEntity.badRequest().body("Erro" + e.getMessage());
             }
 
-            scheduledTaskRepository.save(updatedTask);
-
-            return ResponseEntity.ok(updatedTask);
         }
         else
         {

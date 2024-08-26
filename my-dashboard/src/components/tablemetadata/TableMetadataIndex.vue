@@ -11,6 +11,7 @@
     <v-data-table
       :headers="headers"
       :items="tables"
+      :disable-pagination="true"
       class="elevation-1"
       @click:row="editTable"
     >
