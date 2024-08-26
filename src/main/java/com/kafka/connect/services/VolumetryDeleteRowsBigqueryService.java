@@ -59,6 +59,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
     @Transactional
     private void deleteRrowsWithoutColumData()
     {
+        logger.info("Delete Rows In BigQuery Sem colunas - Inicio");
         List<ConnectorVolumetryEntity> v_listaVolumetryConnector = connectorVolumetryRepository.findAll();
         for (ConnectorVolumetryEntity connectorVolumetryEntity : v_listaVolumetryConnector)
         {
@@ -92,6 +93,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
                     try
                     {
                         bigqueryService.executeQuery(connectorVolumetryEntity.getNomeCliente() + ".json", v_query);
+                        logger.info("Query Executada delete (" + v_oid + "): " + v_query);
                     }
                     catch (Exception e)
                     {
@@ -107,6 +109,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
                 }
             }
         }
+        logger.info("Delete Rows In BigQuery Sem colunas - FIM");
     }
 
     @Transactional
@@ -136,7 +139,7 @@ public class VolumetryDeleteRowsBigqueryService implements SchedulableTask
 
                     volumetryRowsRepository.save(volumetryRowsEntity);
 
-                    logger.info("Query Executada: " + v_query);
+                    logger.info("Query Executada delete (" + volumetryRowsEntity.getOid() + "): " + v_query);
 
                 }
                 catch (Exception e)

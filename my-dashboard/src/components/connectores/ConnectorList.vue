@@ -18,6 +18,9 @@
         <v-btn icon @click="viewDetails(item.id)">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
+        <v-btn icon @click="viewStatus(item.id)">
+          <v-icon>mdi-eye</v-icon>
+        </v-btn>
       </template>
     </v-data-table>
   </div>
@@ -58,8 +61,8 @@ export default {
     viewDetails(id) {
       this.$router.push({ name: 'ConnectorDetails', params: { id } });
     },
-    viewVolumetry(clientName) {
-      this.$router.push({ name: 'VolumetryDetails', params: { clientName } });
+    viewStatus(id) {
+      this.$router.push({ name: 'ConnectorStatusList', params: { id } });
     }
   }
 };

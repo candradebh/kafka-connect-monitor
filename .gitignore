@@ -42,7 +42,11 @@ src/main/resources/credentials/
 data/
 data/kafka.mv.db
 
+## logs ##
+/logs
+
 ## frontend ##
 /my-dashboard/node/
 /my-dashboard/node/node.exe
 /my-dashboard/node_modules/
+

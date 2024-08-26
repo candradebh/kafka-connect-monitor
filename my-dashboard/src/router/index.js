@@ -17,6 +17,7 @@ import TableMetadataIndex from '@/components/tablemetadata/TableMetadataIndex.vu
 import TableMetadataEdit from '@/components/tablemetadata/TableMetadataEdit.vue';
 import NotificationRecipientIndex from '@/components/recipients/NotificationRecipientIndex.vue';
 import NotificationLogIndex from '@/components/notifications/NotificationLogIndex.vue';
+import ConnectorStatusList from '@/components/connectores/ConnectorStatusList.vue';
 
 Vue.use(Router);
 
@@ -47,6 +48,12 @@ const routes = [
     path: '/connector/:id',
     name: 'ConnectorDetails',
     component: ConnectorDetails,
+    props: true
+  },
+  {
+    path: '/connector/status/:id',
+    name: 'ConnectorStatusList',
+    component: ConnectorStatusList,
     props: true
   },
   {
