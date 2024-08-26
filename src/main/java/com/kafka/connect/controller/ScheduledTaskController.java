@@ -35,15 +35,22 @@ public class ScheduledTaskController
     }
 
     @PostMapping
-    public ResponseEntity<ScheduledTaskEntity> createTask(@RequestBody ScheduledTaskEntity taskEntity)
+    public ResponseEntity<?> createTask(@RequestBody ScheduledTaskEntity taskEntity)
     {
         ScheduledTaskEntity savedTask = scheduledTaskRepository.save(taskEntity);
-        dynamicScheduledTaskService.scheduleTask(savedTask);
+        try
+        {
+            dynamicScheduledTaskService.scheduleTask(savedTask);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.badRequest().body("Erro" + e.getMessage());
+        }
         return ResponseEntity.ok(savedTask);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ScheduledTaskEntity> updateTask(@PathVariable Long id, @RequestBody ScheduledTaskEntity taskEntity)
+    public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody ScheduledTaskEntity taskEntity)
     {
         Optional<ScheduledTaskEntity> existingTask = scheduledTaskRepository.findById(id);
         if (existingTask.isPresent())
@@ -53,17 +60,25 @@ public class ScheduledTaskController
             updatedTask.setCronExpression(taskEntity.getCronExpression());
             updatedTask.setDescription(taskEntity.getDescription());
             updatedTask.setActive(taskEntity.isActive());
+
+            try
+            {
+                if (updatedTask.isActive())
+                {
+
+                    dynamicScheduledTaskService.rescheduleTask(updatedTask);
+                }
+                else
+                {
+                    dynamicScheduledTaskService.cancelTask(updatedTask.getServiceName());
+                }
+            }
+            catch (Exception e)
+            {
+                return ResponseEntity.badRequest().body("Erro" + e.getMessage());
+            }
+
             scheduledTaskRepository.save(updatedTask);
-
-            if (updatedTask.isActive())
-            {
-
-                dynamicScheduledTaskService.rescheduleTask(updatedTask);
-            }
-            else
-            {
-                dynamicScheduledTaskService.cancelTask(updatedTask.getServiceName());
-            }
 
             return ResponseEntity.ok(updatedTask);
         }

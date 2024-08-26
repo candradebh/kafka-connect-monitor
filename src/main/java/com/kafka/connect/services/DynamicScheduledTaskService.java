@@ -51,7 +51,7 @@ public class DynamicScheduledTaskService
         }
     }
 
-    public void scheduleTask(final ScheduledTaskEntity taskEntity)
+    public void scheduleTask(final ScheduledTaskEntity taskEntity) throws Exception
     {
         Runnable task = new Runnable()
         {
@@ -76,11 +76,19 @@ public class DynamicScheduledTaskService
                 }
             }
         };
-        ScheduledFuture<?> future = taskScheduler.schedule(task, new CronTrigger(taskEntity.getCronExpression()));
-        scheduledTasks.put(taskEntity.getServiceName(), future);
+
+        try
+        {
+            ScheduledFuture<?> future = taskScheduler.schedule(task, new CronTrigger(taskEntity.getCronExpression()));
+            scheduledTasks.put(taskEntity.getServiceName(), future);
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
     }
 
-    public void rescheduleTask(ScheduledTaskEntity taskEntity)
+    public void rescheduleTask(ScheduledTaskEntity taskEntity) throws Exception
     {
         this.cancelTask(taskEntity.getServiceName());
         this.scheduleTask(taskEntity);

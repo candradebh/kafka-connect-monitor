@@ -89,7 +89,16 @@ public class DataMonitoringService implements SchedulableTask
     @Override
     public void execute()
     {
-        this.dataMonitor();
+        try
+        {
+            this.dataMonitor();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            logger.warning("ERRO ao executar DataMonitoring: " + e.getMessage());
+        }
+
     }
 
     @Transactional

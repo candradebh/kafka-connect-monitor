@@ -42,6 +42,9 @@ public class ScheduledTaskEntity
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean isActive;
 
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String error;
+
     public ScheduledTaskEntity(Long id, String serviceName, String cronExpression, String description, boolean isActive)
     {
         this.id = id;
@@ -49,6 +52,7 @@ public class ScheduledTaskEntity
         this.cronExpression = cronExpression;
         this.description = description;
         this.isActive = isActive;
+
     }
 
     // Getters e Setters
