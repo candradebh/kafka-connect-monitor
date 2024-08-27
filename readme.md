@@ -33,9 +33,7 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar /var/lib/kafka-monitor/monitor-kafka.jar
-StandardOutput=file:/var/lib/kafka-monitor/logs/kafka-monitor.log
-StandardError=file:/var/lib/kafka-monitor/logs/kafka-monitor-error.log
+ExecStart=/usr/bin/java -jar /var/lib/kafka-monitor/monitor-kafka.jar
 Restart=on-failure
 
 [Install]
