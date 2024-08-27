@@ -46,7 +46,7 @@ WantedBy=multi-user.target
 
 5 - Habilite o servico para iniciar com o computador `sudo systemctl enable kafka-monitor`<br>
 
-6 - verificar os logs `sudo journalctl -u kafka-monitor -f` <br> 
+6 - verificar os logs da aplicação: `sudo tail  -f /var/lib/kafka-monitor/logs/spring-boot-app.log` <br> 
 
 
 # FRONT-END 
