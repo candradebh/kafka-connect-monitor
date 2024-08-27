@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import com.kafka.connect.annotations.Auditable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +17,7 @@ import lombok.Setter;
 @Table(name = "connector_volumetry")
 @Getter
 @Setter
+@Auditable
 public class ConnectorVolumetryEntity
 {
 
