@@ -8,11 +8,18 @@
 # Publicar no servidor
 Essa aplicação vai rodar em uma maquina linux
 
+
+# BACK-END
+
+Execute o projeto e ele estará rodando na porta 9999
+
+Acesse em http://localhost:9999
+
 ## Gerando jar 
 `mvn clean package`
 
 ### Executando o jar
-`java -Djava.util.logging.config.file=src/main/resources/logging.properties -jar monitor-kafka.jar`
+`java -jar monitor-kafka.jar`
 
 ## Copiar arquivos
 1 - Copiar o jar `monitor-kafka.jar` para a pasta `/var/lib/kafka-monitor` <br>
@@ -44,7 +51,15 @@ WantedBy=multi-user.target
 6 - verificar os logs `sudo journalctl -u kafka-monitor -f` <br> 
 
 
+# FRONT-END 
 
+`cd my-dashboard`
+
+`npm install`
+
+`npm run serve`
+
+Acesse em http://localhost:9998
 
 
 ## Links interessantes
