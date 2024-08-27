@@ -17,8 +17,20 @@ public class AuditLogController
     @Autowired
     private AuditLogRepository auditLogRepository;
 
+    @GetMapping
+    public List<AuditLogEntity> getAllLogs()
+    {
+        return auditLogRepository.findAll();
+    }
+
+    @GetMapping("/{entityName}")
+    public List<AuditLogEntity> getAuditLogsEntity(@PathVariable String entityName)
+    {
+        return auditLogRepository.findByEntityName(entityName);
+    }
+
     @GetMapping("/{entityName}/{entityId}")
-    public List<AuditLogEntity> getAuditLogs(@PathVariable String entityName, @PathVariable Long entityId)
+    public List<AuditLogEntity> getAuditLogsEntityNameEntityId(@PathVariable String entityName, @PathVariable Long entityId)
     {
         return auditLogRepository.findByEntityNameAndEntityId(entityName, entityId);
     }
