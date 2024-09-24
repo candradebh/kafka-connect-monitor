@@ -165,7 +165,7 @@ public class DataMonitoringService implements SchedulableTask
                         // salvo em uma lista os 10 ultimos historicos
                         this.updateConnectorVolumetryHistory(v_volumetry);
 
-                        connectorVolumetryRepository.save(v_volumetry);
+                        // connectorVolumetryRepository.save(v_volumetry);
 
                         // lista com erro para criar notificacao
                         if (v_volumetry.getStatus().equals(StatusVolumetry.ERRO.name()))
