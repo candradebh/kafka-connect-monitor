@@ -45,8 +45,8 @@ public class NotificationService implements SchedulableTask
     @Transactional
     private void notifyUsers()
     {
-        // List<NotificationLogEntity> v_listaEnviar = logRepository.findByFoiEnviadoFalseAndTemErroFalse();
-        List<NotificationLogEntity> v_listaEnviar = logRepository.findByFoiEnviadoFalse();
+        List<NotificationLogEntity> v_listaEnviar = logRepository.findByFoiEnviadoFalseAndTemErroFalse();
+        // List<NotificationLogEntity> v_listaEnviar = logRepository.findByFoiEnviadoFalse();
 
         for (NotificationLogEntity notificationLogEntity : v_listaEnviar)
         {
