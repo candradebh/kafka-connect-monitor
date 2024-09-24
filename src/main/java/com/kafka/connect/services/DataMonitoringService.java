@@ -21,6 +21,7 @@ import com.kafka.connect.datasources.DatabaseConnectionJdbc;
 import com.kafka.connect.dto.DataAnaliseYearDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorVolumetryEntity;
+import com.kafka.connect.entity.ConnectorVolumetryHistoryEntity;
 import com.kafka.connect.entity.NotificationLogEntity;
 import com.kafka.connect.entity.RecipientEntity;
 import com.kafka.connect.entity.TableMetadataEntity;
@@ -161,6 +162,9 @@ public class DataMonitoringService implements SchedulableTask
 
                         this.updateCount(v_hashStatusCount, v_volumetry);
 
+                        // salvo em uma lista os 10 ultimos historicos
+                        this.updateConnectorVolumetryHistory(v_volumetry);
+
                         connectorVolumetryRepository.save(v_volumetry);
 
                         // lista com erro para criar notificacao
@@ -192,6 +196,29 @@ public class DataMonitoringService implements SchedulableTask
             }
             v_databaseConnectionJdbc.close();
         }
+    }
+
+    public void updateConnectorVolumetryHistory(ConnectorVolumetryEntity volumetryEntity)
+    {
+        ConnectorVolumetryHistoryEntity v_history = volumetryEntity.getVolumetryHistory().stream().filter(new Predicate<ConnectorVolumetryHistoryEntity>()
+        {
+            @Override
+            public boolean test(ConnectorVolumetryHistoryEntity vh)
+            {
+                return vh.getDataBusca().getTime() == volumetryEntity.getDataBusca().getTime();
+            }
+        }).findFirst().orElse(new ConnectorVolumetryHistoryEntity());
+
+        v_history.setPostgres(volumetryEntity.getPostgres());
+        v_history.setBigquery(volumetryEntity.getBigquery());
+        v_history.setDataBusca(volumetryEntity.getDataBusca());
+        v_history.setConnectorVolumetry(volumetryEntity);
+
+        // Adicionar o registro à entidade principal
+        volumetryEntity.addVolumetryHistory(v_history);
+
+        // Salvar a entidade principal e o histórico
+        connectorVolumetryRepository.save(volumetryEntity);
     }
 
     private void updateCount(HashMap<String, Integer> v_hashStatusCount, ConnectorVolumetryEntity connectorVolumetryEntity)
@@ -665,7 +692,7 @@ public class DataMonitoringService implements SchedulableTask
         StringBuffer htmlMsg = new StringBuffer();
         String v_assunto = "Divergências na Volumetria dos dados (Postgres x BigQuery) para o cliente " + p_nomeCliente;
 
-        htmlMsg.append("<h3>" + v_assunto + "</h3>");
+        htmlMsg.append("<h3>" + v_assunto + "</h3> <BR><BR>");
         htmlMsg.append("<table border='1' cellpadding='5' cellspacing='0'>");
         htmlMsg.append("<tr>")//
             .append("<th>Nome da Tabela</th>")//
@@ -675,28 +702,98 @@ public class DataMonitoringService implements SchedulableTask
             .append("<th>Diferença</th>")//
             .append("<th>Status</th>")//
             .append("</tr>");
-
+        boolean v_teveErro = false;
         for (ConnectorVolumetryEntity v_volumetryError : v_listVolumetryError)
         {
-            htmlMsg.append("<tr>")//
-                .append("<td>").append(v_volumetryError.getTabela()).append("</td>")//
-                .append("<td>").append(v_volumetryError.getDataBusca()).append("</td>")//
-                .append("<td>").append(v_volumetryError.getPostgres()).append("</td>")//
-                .append("<td>").append(v_volumetryError.getBigquery()).append("</td>")//
-                .append("<td>").append(v_volumetryError.getDifference()).append("</td>")//
-                .append("<td>").append(v_volumetryError.getStatus()).append("</td>")//
-                .append("</tr>");
+
+            if (this.verificarHistoricoVolumetria(v_volumetryError))
+            {
+                v_teveErro = true;
+                htmlMsg.append("<tr>")//
+                    .append("<td>").append(v_volumetryError.getTabela()).append("</td>")//
+                    .append("<td>").append(v_volumetryError.getDataBusca()).append("</td>")//
+                    .append("<td>").append(v_volumetryError.getPostgres()).append("</td>")//
+                    .append("<td>").append(v_volumetryError.getBigquery()).append("</td>")//
+                    .append("<td>").append(v_volumetryError.getDifference()).append("</td>")//
+                    .append("<td>").append(v_volumetryError.getStatus()).append("</td>")//
+                    .append("</tr>");
+            }
 
         }
 
-        // criando a notificacao
-        NotificationLogEntity v_notificationLog = new NotificationLogEntity();
-        v_notificationLog.setRecipient(this.getEmailsAsCommaSeparatedString());
-        v_notificationLog.setSubject(v_assunto);
-        v_notificationLog.setMessage(htmlMsg.toString());
-        v_notificationLog.setNomeCliente(p_nomeCliente);
+        if (v_teveErro)
+        {
 
-        logRepository.save(v_notificationLog);
+            // criando a notificacao
+            NotificationLogEntity v_notificationLog = new NotificationLogEntity();
+            v_notificationLog.setRecipient(this.getEmailsAsCommaSeparatedString());
+            v_notificationLog.setSubject(v_assunto);
+            v_notificationLog.setMessage(htmlMsg.toString());
+            v_notificationLog.setNomeCliente(p_nomeCliente);
+
+            logRepository.save(v_notificationLog);
+        }
+
+    }
+
+    public boolean verificarHistoricoVolumetria(ConnectorVolumetryEntity connectorVolumetry)
+    {
+        // Parâmetros de configuração
+        int consultasConsecutivasErro = 3; // Quantidade de consultas consecutivas com erro que disparam alarme
+        double limiteToleranciaPercentual = 5.0; // Limite de tolerância para erro percentual
+        int contagemErrosConsecutivos = 0;
+
+        List<ConnectorVolumetryHistoryEntity> historico = connectorVolumetry.getVolumetryHistory();
+        double somaDiferencasPercentuais = 0;
+        int totalConsultas = historico.size();
+
+        for (int i = 0; i < totalConsultas - 1; i++)
+        {
+            ConnectorVolumetryHistoryEntity atual = historico.get(i);
+            ConnectorVolumetryHistoryEntity anterior = historico.get(i + 1);
+
+            long registrosPostgresAtual = atual.getPostgres();
+            long registrosBigQueryAtual = atual.getBigquery();
+            long registrosPostgresAnterior = anterior.getPostgres();
+            long registrosBigQueryAnterior = anterior.getBigquery();
+
+            // Calcular diferença percentual entre Postgres e BigQuery
+            double diferencaPercentualAtual = Math.abs(registrosPostgresAtual - registrosBigQueryAtual) / (double) registrosPostgresAtual * 100;
+
+            // Calcular diferença percentual entre as últimas consultas para verificar a estabilidade
+            double diferencaPercentualEntreConsultas = Math
+                .abs((registrosPostgresAtual - registrosPostgresAnterior) - (registrosBigQueryAtual - registrosBigQueryAnterior))
+                / (double) registrosPostgresAnterior * 100;
+
+            somaDiferencasPercentuais += diferencaPercentualAtual;
+
+            // Verifica se a diferença está acima da tolerância
+            if (diferencaPercentualAtual > limiteToleranciaPercentual)
+            {
+                contagemErrosConsecutivos++;
+            }
+            else
+            {
+                contagemErrosConsecutivos = 0; // Reinicia contagem se estiver dentro da tolerância
+            }
+
+            // Verificar se o erro persiste por várias consultas consecutivas
+            if (contagemErrosConsecutivos >= consultasConsecutivasErro)
+            {
+                return true;
+            }
+
+            // Caso a variação entre consultas esteja aumentando, sinal de possível problema
+            if (diferencaPercentualEntreConsultas > limiteToleranciaPercentual)
+            {
+                return true;
+            }
+        }
+
+        // Cálculo da média de diferença percentual
+        double mediaDiferencasPercentuais = somaDiferencasPercentuais / totalConsultas;
+
+        return false;
     }
 
     public String getEmailsAsCommaSeparatedString()

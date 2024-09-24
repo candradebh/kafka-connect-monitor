@@ -1,21 +1,16 @@
 <template>
   <div>
-    <v-card>
-    <h2>Cliente: {{ clientName }} </h2>
-    <h2>Tabela: {{ tableName }} </h2>
-    <div>
-      <p><b>OK:</b> {{ okCount }}</p>
-      <p><b>ERROR:</b> {{ errorCount }}</p>
-    </div>
-    </v-card>
+    <v-data-table :headers="headers" :items="volumetries" :disable-pagination="true" class="elevation-1" fixed-header>
+      <template v-slot:top>
+        <v-toolbar flat>
+          <v-toolbar-title>
+            Cliente: {{ clientName }} | Tabela: {{ tableName }}<br>
+            OK:{{ okCount }} | ERROR:{{ errorCount }}
+          </v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+      </template>
 
-    <v-data-table
-      :headers="headers"
-      :items="volumetries"
-      :disable-pagination="true"
-      class="elevation-1"
-      fixed-header
-    >
       <template v-slot:[`item.dataBusca`]="{ item }">
         {{ item.dataBusca | formatDate }}
       </template>
@@ -86,4 +81,3 @@ export default {
   }
 };
 </script>
-

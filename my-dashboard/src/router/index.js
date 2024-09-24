@@ -1,9 +1,19 @@
 import Vue from 'vue';
 import Router from 'vue-router';
+import AuditLogIndex from '@/components/auditlogs/AuditLogIndex.vue';
 import HomePage from '@/components/HomePage.vue';
 import ConnectorListForCliente from '@/components/connectores/ConnectorListForCliente.vue';
 import ConnectorList from '@/components/connectores/ConnectorList.vue';
 import ConnectorDetails from '@/components/connectores/ConnectorDetails.vue';
+import ConnectorStatusList from '@/components/connectores/ConnectorStatusList.vue';
+import CustomerIndex from '@/components/customer/CustomerIndex.vue';
+import CustomerEdit from '@/components/customer/CustomerEdit.vue';
+import ScheduledTaskIndex from '@/components/scheduledTasks/ScheduledTaskIndex.vue';
+import ScheduledTaskEdit from '@/components/scheduledTasks/ScheduledTaskEdit.vue';
+import TableMetadataIndex from '@/components/tablemetadata/TableMetadataIndex.vue';
+import TableMetadataEdit from '@/components/tablemetadata/TableMetadataEdit.vue';
+import NotificationRecipientIndex from '@/components/recipients/NotificationRecipientIndex.vue';
+import NotificationLogIndex from '@/components/notifications/NotificationLogIndex.vue';
 import VolumetryDetails from '@/components/volumetry/VolumetryDetails.vue';
 import VolumetryTableDetails from '@/components/volumetry/VolumetryTableDetails.vue';
 import VolumetryTableDetailsMesDia from '@/components/volumetry/VolumetryTableDetailsMesDia.vue';
@@ -11,13 +21,9 @@ import VolumetryTableDetailsMesDiaHora from '@/components/volumetry/VolumetryTab
 import VolumetryTableDetailsMesDiaHoraMinutes from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutes.vue';
 import VolumetryTableDetailsMesDiaHoraMinutesRows from '@/components/volumetry/VolumetryTableDetailsMesDiaHoraMinutesRows.vue';
 import VolumetryListForCliente from '@/components/volumetry/VolumetryListForCliente.vue';
-import ScheduledTaskIndex from '@/components/scheduledTasks/ScheduledTaskIndex.vue';
-import ScheduledTaskEdit from '@/components/scheduledTasks/ScheduledTaskEdit.vue';
-import TableMetadataIndex from '@/components/tablemetadata/TableMetadataIndex.vue';
-import TableMetadataEdit from '@/components/tablemetadata/TableMetadataEdit.vue';
-import NotificationRecipientIndex from '@/components/recipients/NotificationRecipientIndex.vue';
-import NotificationLogIndex from '@/components/notifications/NotificationLogIndex.vue';
-import ConnectorStatusList from '@/components/connectores/ConnectorStatusList.vue';
+
+
+
 
 Vue.use(Router);
 
@@ -26,6 +32,11 @@ const routes = [
     path: '/',
     name: 'HomePage',
     component: HomePage
+  },
+  {
+    path: '/auditlogs',
+    name: 'AuditLogIndex',
+    component: AuditLogIndex
   },
   {
     path: '/volumetry',
@@ -101,6 +112,17 @@ const routes = [
     path: '/services/:serviceName',
     name: 'ScheduledTaskEdit',
     component: ScheduledTaskEdit,
+    props: true
+  },
+  {
+    path: '/customer',
+    name: 'CustomerIndex',
+    component: CustomerIndex
+  },
+  {
+    path: '/customer/:id',
+    name: 'CustomerEdit',
+    component: CustomerEdit,
     props: true
   },
   {

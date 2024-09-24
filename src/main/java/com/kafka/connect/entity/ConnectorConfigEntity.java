@@ -10,16 +10,21 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "connector_config")
 @Getter
 @Setter
+@NoArgsConstructor
 public class ConnectorConfigEntity
 {
 
@@ -61,6 +66,11 @@ public class ConnectorConfigEntity
 
     @Column(columnDefinition = "text")
     private String tableIncludeList;
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = true)
+    private CustomerEntity customer;
 
     @JsonIgnore
     @OneToMany(mappedBy = "connector", cascade = CascadeType.ALL, orphanRemoval = true)

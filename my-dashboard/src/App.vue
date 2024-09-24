@@ -47,8 +47,10 @@ export default {
     drawer: false,
     items: [
       { title: 'Home', path: '/' },
+      { title: 'Clientes', path: '/customer' },
       { title: 'Conectores', path: '/connectors' },
       { title: 'Volumetria', path: '/volumetry' },
+      { title: 'Audit logs', path: '/auditlogs' },
       { title: 'Serviços', path: '/services' },
       { title: 'Tabelas', path: '/tables' },
       { title: 'Destinatários', path: '/recipients' },

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kafka.connect.dto.ConnectorSummaryDTO;
 import com.kafka.connect.entity.ConnectorConfigEntity;
 import com.kafka.connect.entity.ConnectorStatusEntity;
+import com.kafka.connect.entity.CustomerEntity;
 import com.kafka.connect.entity.NotificationLogEntity;
 import com.kafka.connect.entity.RecipientEntity;
 import com.kafka.connect.entity.TaskStatusEntity;
@@ -21,6 +22,7 @@ import com.kafka.connect.model.ConnectorStatus;
 import com.kafka.connect.model.ConnectorStatus.Task;
 import com.kafka.connect.repository.ConnectorConfigRepository;
 import com.kafka.connect.repository.ConnectorStatusRepository;
+import com.kafka.connect.repository.CustomerRepository;
 import com.kafka.connect.repository.NotificationLogRepository;
 import com.kafka.connect.repository.RecipientRepository;
 
@@ -34,6 +36,9 @@ public class ConnectorConfigService
 
     @Autowired
     private ConnectorConfigRepository repository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @Autowired
     private ConnectorStatusRepository connectorStatusRepository;
@@ -176,7 +181,26 @@ public class ConnectorConfigService
 
                     // o restante das configuracoes eh obtido na chamada de /config
                     ConnectorConfig v_configServer = kafkaConnectService.getConnectorConfig(connectorConfig.getName());
-                    connectorConfig.setNomeCliente(v_configServer.getNomeCliente());
+
+                    // obter o cliente
+                    CustomerEntity v_customer = null;
+
+                    // nome que esta vindo do servidor kafka, esse nome pode sumir caso uma atualizacao via front end seja feita
+                    String v_nomeCliente = v_configServer.getNomeCliente();
+                    if (v_nomeCliente != null && connectorConfig.getCustomer() == null)
+                    {
+                        connectorConfig.setNomeCliente(v_nomeCliente);
+
+                        v_customer = customerRepository.findByName(v_nomeCliente);
+                        this.associarClienteAoConector(connectorConfig, v_customer, v_nomeCliente);
+                    }
+                    else if (v_nomeCliente == null && connectorConfig.getCustomer() == null)
+                    {
+                        // quebra o nome do conetor para tentar descobrir o nome do cliente
+                        v_customer = this.pesquisarClienteNomeConector(connectorConfig, "-");
+                        this.associarClienteAoConector(connectorConfig, v_customer, v_nomeCliente);
+                    }
+
                     connectorConfig.setHost(v_configServer.getHostname());
                     connectorConfig.setPort(v_configServer.getPort());
                     connectorConfig.setUsuario(v_configServer.getUser());
@@ -199,7 +223,7 @@ public class ConnectorConfigService
             // logger.info("Deletando os conectores que não existem no kafka");
 
             // deleta os conectors que não existe no kafka
-            this.checkAndDeleteByNames(connectors);
+            // this.checkAndDeleteByNames(connectors);
         }
         catch (Exception e)
         {
@@ -215,6 +239,34 @@ public class ConnectorConfigService
 
         logger.info("Fim da atualização dos conectores");
 
+    }
+
+    private void associarClienteAoConector(ConnectorConfigEntity connectorConfig, CustomerEntity v_customer, String v_nomeCliente)
+    {
+        if (v_customer == null)
+        {
+            v_customer = new CustomerEntity();
+            v_customer.setName(v_nomeCliente);
+            v_customer.setDescription(v_nomeCliente);
+            customerRepository.save(v_customer);
+        }
+
+        connectorConfig.setCustomer(v_customer);
+    }
+
+    private CustomerEntity pesquisarClienteNomeConector(ConnectorConfigEntity connectorConfig, String p_split)
+    {
+        CustomerEntity v_customer = null;
+        String[] v_listaPossiveisNomeCliente = connectorConfig.getName().split(p_split);
+        for (String v_name : v_listaPossiveisNomeCliente)
+        {
+            v_customer = customerRepository.findByName(v_name.trim());
+            if (v_customer != null)
+            {
+                return v_customer;
+            }
+        }
+        return v_customer;
     }
 
     @Transactional

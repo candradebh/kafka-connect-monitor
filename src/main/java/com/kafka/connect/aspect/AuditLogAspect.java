@@ -1,5 +1,6 @@
 package com.kafka.connect.aspect;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kafka.connect.annotations.Auditable;
+import com.kafka.connect.annotations.AuditableField;
 import com.kafka.connect.entity.AuditLogEntity;
 import com.kafka.connect.repository.AuditLogRepository;
 
@@ -112,7 +114,19 @@ public class AuditLogAspect
     {
         try
         {
-            return objectMapper.writeValueAsString(entity);
+            Map<String, Object> filteredFields = new HashMap<>();
+            Field[] fields = entity.getClass().getDeclaredFields();
+
+            for (Field field : fields)
+            {
+                field.setAccessible(true); // Permitir acesso a campos privados
+                if (field.isAnnotationPresent(AuditableField.class))
+                {
+                    filteredFields.put(field.getName(), field.get(entity));
+                }
+            }
+
+            return objectMapper.writeValueAsString(filteredFields);
         }
         catch (Exception e)
         {
@@ -135,7 +149,6 @@ public class AuditLogAspect
 
     private String getEntityNameFromRepository(JpaRepository repository)
     {
-        // Usa o Spring's ResolvableType para resolver o tipo genérico do repositório
         ResolvableType resolvableType = ResolvableType.forClass(repository.getClass()).as(JpaRepository.class);
         Class<?> entityClass = resolvableType.getGeneric(0).resolve();
         return entityClass != null ? entityClass.getSimpleName() : null;

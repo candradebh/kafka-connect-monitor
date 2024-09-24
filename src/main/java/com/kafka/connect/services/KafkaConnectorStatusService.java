@@ -13,6 +13,7 @@ public class KafkaConnectorStatusService implements SchedulableTask
     @Autowired
     private ConnectorConfigService connectorConfigService;
 
+    @Override
     public void execute()
     {
         logger.info("Iniciando monitoramento do status dos conectores...");
